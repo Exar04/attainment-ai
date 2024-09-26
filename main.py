@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QComboBox
 from PyQt5.QtGui import QFont, QIcon 
 from PyQt5.QtCore import Qt, pyqtSlot
 
@@ -14,14 +14,7 @@ class MainWindow( QMainWindow ):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.sidebar()
-        label = QLabel("Attainment AI", self)
-        label.setFont(QFont("Arial", 30))
-        label.setGeometry(260,0, 580, 50)
-        label.setStyleSheet(
-            "color:#FFFFa0;"
-            "background-color:blue;"
-            "font-weight: bold;")
-        label.setAlignment(Qt.AlignCenter)
+        self.mainbox()
 
 
         # label2 = QLabel("#2", self)
@@ -69,7 +62,65 @@ class MainWindow( QMainWindow ):
             """)
         label1.setGeometry(10,10, 240, 40)
         label1.clicked.connect(self.on_click_bloom)
-        pass
+
+    def mainbox(self):
+        label = QLabel("Attainment AI", self)
+        label.setFont(QFont("Arial", 30))
+        label.setGeometry(260,0, 580, 50)
+        label.setStyleSheet(
+            # "color:#FFFFa0;"
+            # "background-color:blue;"
+            "font-weight: bold;")
+        label.setAlignment(Qt.AlignCenter)
+
+        semesterlist = QComboBox(self)
+        semesterlist.addItems(["sem 1", "sem 2", "sem 3", "sem 4"])
+        semesterlist.setGeometry(270,80, 180, 50)
+        semesterlist.setStyleSheet("""
+            QComboBox {
+                background-color: lightblue;  
+                border-radius: 20px;  
+                font: bold;
+            }
+            
+            QComboBox:drop-down {
+                width: 0;
+                height: 0;
+            }
+        """)
+
+        subject = QComboBox(self)
+        subject.addItems(["sem 1", "sem 2", "sem 3", "sem 4"])
+        subject.setGeometry(460,80, 180, 50)
+        subject.setStyleSheet("""
+            QComboBox {
+                background-color: lightblue;  
+                border-radius: 20px;  
+                font: bold;
+            }
+            
+            QComboBox:drop-down {
+                width: 0;
+                height: 0;
+            }
+        """)
+
+        field = QComboBox(self)
+        field.addItems(["sem 1", "sem 2", "sem 3", "sem 4"])
+        field.setGeometry(650,80, 180, 50)
+        field.setStyleSheet("""
+            QComboBox {
+                background-color: lightblue;  
+                border-radius: 20px;  
+                font: bold;
+            }
+            
+            QComboBox:drop-down {
+                width: 0;
+                height: 0;
+            }
+        """)
+
     @pyqtSlot()
     def on_click_bloom(self):
         print("cli cky")
