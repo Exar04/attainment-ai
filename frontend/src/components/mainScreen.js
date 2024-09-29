@@ -1,33 +1,97 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react"
 import {useDropzone} from "react-dropzone"
+import {utils, read, writeXLSX, writeFile} from "xlsx"
+
 export function MainScreen(){
+    const [files, setFiles] = useState([])
+    const [bloomLoading, setBloomLoading] = useState(false)
+    const [fileContent, setFileContent] = useState("")
+    const [datainjson, setdatainjson] = useState([])
+    const handleBloom = () => {
+        if (bloomLoading){return}
+
+        if (files.length <= 0){
+            alert("You need to add file")
+            return
+        }
+
+        setBloomLoading(true)
+
+        // rn we are just handling the first input file
+        // but later we will add functionality to do batch analysis
+        const file = files[0]
+        // rn we only added functionality to parse text file 
+        const reader = new FileReader()
+        reader.readAsText(file)
+        reader.onload = function(e) {
+            const content = e.target.result // This is the file content
+            setFileContent(content) // Store the content in the state
+        }
+
+        setTimeout(() => {
+            setBloomLoading(false)
+          }, 1000);
+
+        setBloomLoading(false)
+    }
+
+    function handleXlsxExport(data){
+        var wb = utils.book_new()
+        var ws = utils.json_to_sheet(data)
+
+        utils.book_append_sheet(wb, ws, "sheetoli")
+        writeFile(wb, "myexceltest.xlsx")
+    }
+
+    useEffect(() => {
+        // after hitting get bloom we will get our content and this hook will get triggered
+        // so even if there are multiple files in queue, each time a fileContent gets changed we asume next file in queue has been added to do query 
+
+        if (fileContent == "") { return }
+        var newData = [] 
+        const lines = fileContent.split('\n'); // Split by new line character
+        lines.forEach((line, index) => {
+        console.log("heheo")
+            // console.log(line, "F"); // Process each line
+            // jsonData[`line${index + 1}`] = {"question":line}
+            const jsonData =  {"question":line,"create":false, "evaluate":false,"analysis":false, "apply":false, "understand":false, "remember":false}
+            newData.push(jsonData)
+        });
+        setdatainjson(newData)
+    }, [fileContent])
+    useEffect(() => {
+        if (datainjson == {}){
+            return
+        }
+        handleXlsxExport(datainjson)
+    }, [datainjson])
+
     return (
         <div className=" w-full h-full bg-gradient-to-bl from-blue-900 to-cyan-400 justify-center items-center flex flex-col">
             <div className=" font-bold text-center font-mono text-2xl text-white"> Attainment AI </div>
             <div className=" flex m-4 justify-center">
-                <div className=" m-3 bg-cyan-500 p-4 px-8 rounded-full text-white font-mono text-lg">Semester</div>
-                <div className=" m-3 bg-cyan-500 p-4 px-8 rounded-full text-white font-mono text-lg" >Subject</div>
-                <div className=" m-3 bg-cyan-500 p-4 px-8 rounded-full text-white font-mono text-lg">Field</div>
+                <div role={"button"} className=" m-3 bg-cyan-500 p-4 px-8 rounded-full text-white font-mono text-lg">Semester</div>
+                <div role={"button"}  className=" m-3 bg-cyan-500 p-4 px-8 rounded-full text-white font-mono text-lg" >Subject</div>
+                <div role={"button"} className=" m-3 bg-cyan-500 p-4 px-8 rounded-full text-white font-mono text-lg">Field</div>
             </div>
 
-            <MyDropzone />
-            <div className=" bg-green-400 hover:bg-emerald-400 hover:px-10 duration-200 m-4 p-4 px-8 rounded-full font-bold font-mono">
-                Get Bloom
+            <MyDropzone files={files} setFiles={setFiles}/>
+            <div role={"button"} onClick={handleBloom} className=" bg-green-400 hover:bg-emerald-400 hover:px-10 duration-200 m-4 p-4 px-8 rounded-full font-bold font-mono">
+                {bloomLoading? "Loading...":"Get Bloom"}
             </div>
         </div>
     )
 }
 
-function MyDropzone(){
-    const [files, setFiles] = useState([])
+function MyDropzone(props){
 
     const onDrop = useCallback(acceptedFiles => {
-        setFiles((prevFiles) => [...prevFiles, ...acceptedFiles])
+        props.setFiles((prevFiles) => [...prevFiles, ...acceptedFiles])
     },[])
 
-    useEffect(() => {
-        console.log(files)
-    }, [files])
+    // useEffect(() => {
+    //     console.log(files)
+    // }, [files])
     
     const { getRootProps, getInputProps, isDragActive} = useDropzone({ onDrop })
 
@@ -35,8 +99,8 @@ function MyDropzone(){
 
         <div {...getRootProps()} className=" z-10 bg-sky-600 duration-300 hover:bg-blue-500  w-96 h-96 flex flex-col justify-center items-center rounded-lg text-center border-2  border-cyan-400 border-dotted">
             <input {...getInputProps()} />
-            {files.length > 0 ?
-                <SetUploadedFilesLogo files={files}/>
+            {props.files.length > 0 ?
+                <SetUploadedFilesLogo files={props.files}/>
                 :
                 <>
                     {isDragActive ? (
@@ -68,10 +132,8 @@ function SetUploadedFilesLogo(props) {
         //     console.log("image type png")
         // }
         if( props.files.length == 1){
-            console.log("yesh angle set")
             setAngles([0])
         }else if ( props.files.length == 2){
-            // setAngles([-20, 20])
             setAngles([-20, 20])
         }else if ( props.files.length == 3){
             setAngles([-30, 0, 30])
@@ -83,16 +145,48 @@ function SetUploadedFilesLogo(props) {
     },[props.files])
 
     const angledImgs = angles.map((angle, index) => {
-        return (
-          <img
-            key={index} // Adding a key when mapping
-            src="pdf_file_logo.webp"
-            className={`${angle >= 0 ? "translate-x-5 translate-y-4": "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
-            style={{transform: `rotate(${angle}deg)`}}
-          />
-        );
-      });
-      
+        if(props.files[index].type == "application/pdf"){
+            return (
+                <img
+                    key={index} // Adding a key when mapping
+                    src="pdf_file_logo.webp"
+                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
+                    style={{ transform: `rotate(${angle}deg)` }}
+                />
+            );
+        } else if (props.files[index].type == "application/vnd.ms-excel") {
+
+            return (
+                <img
+                    key={index} // Adding a key when mapping
+                    src="excel-file-logo.png"
+                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
+                    style={{ transform: `rotate(${angle}deg)` }}
+                />
+            );
+        } else if (props.files[index].type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+            return (
+                <img
+                    key={index} // Adding a key when mapping
+                    src="word-file-logo.png"
+                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
+                    style={{ transform: `rotate(${angle}deg)` }}
+                />
+            );
+
+        } else if (props.files[index].type == "text/plain") {
+            return (
+                <img
+                    key={index} // Adding a key when mapping
+                    src="txt-file-logo.png"
+                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
+                    style={{ transform: `rotate(${angle}deg)` }}
+                />
+            );
+
+        }
+    });
+
     return(
         <div className=" relative w-full h-full flex justify-center items-center">
             {angledImgs}
