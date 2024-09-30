@@ -1,12 +1,21 @@
 import { useCallback, useEffect, useState } from "react"
 import {useDropzone} from "react-dropzone"
 import {utils, read, writeXLSX, writeFile} from "xlsx"
+// import dotenv from "dotenv"
+import { GoogleGenerativeAI } from "@google/generative-ai"
 
 export function MainScreen(){
     const [files, setFiles] = useState([])
     const [bloomLoading, setBloomLoading] = useState(false)
     const [fileContent, setFileContent] = useState("")
     const [datainjson, setdatainjson] = useState([])
+
+    const [openSemlist, setOpenSemlist] = useState(false) 
+    const [opensubjectlist, setOpensubjectlist] = useState(false)
+    // dotenv.config()
+    const genAI = new GoogleGenerativeAI(process.env.REACT_GEMINI_API_KEY) 
+    const model = genAI.getGenerativeModel({model:"gemini-pro"})
+
     const handleBloom = () => {
         if (bloomLoading){return}
 
@@ -43,26 +52,49 @@ export function MainScreen(){
         writeFile(wb, "myexceltest.xlsx")
     }
 
+    async function getairesponse(question){
+            const prompt = `${question}
+read the question above and tell me if the question is valid in blooms taxonomy and only give response in following example format
+{
+    <replace this with above given question>:{
+        create: false
+        evaluate: false
+        analysis: false 
+        apply: false 
+        understand:false
+        remember: false 
+
+    }
+}`
+
+            const result = await model.generateContent(prompt)
+            const response = result.response
+            const text = response.text()
+            console.log(text)
+            return text
+    }
+
     useEffect(() => {
         // after hitting get bloom we will get our content and this hook will get triggered
         // so even if there are multiple files in queue, each time a fileContent gets changed we asume next file in queue has been added to do query 
 
         if (fileContent == "") { return }
-        var newData = [] 
+        var newData = []
         const lines = fileContent.split('\n'); // Split by new line character
         lines.forEach((line, index) => {
-        console.log("heheo")
-            // console.log(line, "F"); // Process each line
-            // jsonData[`line${index + 1}`] = {"question":line}
-            const jsonData =  {"question":line,"create":false, "evaluate":false,"analysis":false, "apply":false, "understand":false, "remember":false}
+            // const aijsonresp = getairesponse(line) 
+
+            const jsonData = { "question": line, "create": false, "evaluate": false, "analysis": false, "apply": false, "understand": false, "remember": false }
             newData.push(jsonData)
         });
         setdatainjson(newData)
     }, [fileContent])
+
     useEffect(() => {
-        if (datainjson == {}){
+        if (datainjson.length == 0 ){
             return
         }
+
         handleXlsxExport(datainjson)
     }, [datainjson])
 
@@ -70,9 +102,15 @@ export function MainScreen(){
         <div className=" w-full h-full bg-gradient-to-bl from-blue-900 to-cyan-400 justify-center items-center flex flex-col">
             <div className=" font-bold text-center font-mono text-2xl text-white"> Attainment AI </div>
             <div className=" flex m-4 justify-center">
-                <div role={"button"} className=" m-3 bg-cyan-500 p-4 px-8 rounded-full text-white font-mono text-lg">Semester</div>
-                <div role={"button"}  className=" m-3 bg-cyan-500 p-4 px-8 rounded-full text-white font-mono text-lg" >Subject</div>
-                <div role={"button"} className=" m-3 bg-cyan-500 p-4 px-8 rounded-full text-white font-mono text-lg">Field</div>
+                <div onClick={() => {setOpenSemlist(!openSemlist)}} role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md relative text-center">
+                    Select Semester
+                    {openSemlist? <div className="z-20 bg-cyan-400 h-96 w-60 absolute rounded-md -translate-x-10 translate-y-5 border-2"></div>:""}
+                </div>
+                <div onClick={() => {setOpensubjectlist(!opensubjectlist)}} role={"button"}  className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md relative text-center" >
+                    Select Subject
+                    { opensubjectlist?<div className="z-20 bg-cyan-400 h-96 w-60 absolute rounded-md -translate-x-10 translate-y-5 border-2"></div>:""}
+                </div>
+                <div role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md text-center">Select Field</div>
             </div>
 
             <MyDropzone files={files} setFiles={setFiles}/>
