@@ -13,6 +13,7 @@ export function Co(){
     const [openSemlist, setOpenSemlist] = useState(false) 
     const [opensubjectlist, setOpensubjectlist] = useState(false)
     const [openFieldlist, setOpenfieldlist] = useState(false)
+    const [openMappedCO, setOpenMappedCO] = useState(false)
 
     const [fieldSelected, setFieldSelected] = useState("")
     const [semesterSelected, setSemesterSelected] = useState("")
@@ -124,6 +125,12 @@ export function Co(){
           <div onClick={() => {setSubjectSelected(sub)}} className="p-3 text-slate-800 hover:text-white hover:bg-slate-800 hover:scale-110 rounded-lg duration-150" key={sub}>{sub}</div>
         ))
       ) : <div>No subjects available</div>;
+    
+    const setOfCourseOurcomesBasedOnSelectedSubject = courseOutcomeMap[fieldSelected] && courseOutcomeMap[fieldSelected][semesterSelected] && courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected] ? (
+        courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected].map((co) => (
+            <div className="text-center p-2 text-white hover:z-10 hover:scale-125 hover:rounded-lg hover:bg-slate-800 hover:border-0 border-x border-slate-800/60 duration-150 text-sm ">{co}</div>
+        ))
+    ):""
 
     const genAI = new GoogleGenerativeAI(process.env.REACT_GEMINI_API_KEY) 
     const model = genAI.getGenerativeModel({model:"gemini-pro"})
@@ -133,6 +140,10 @@ export function Co(){
 
         if (files.length <= 0){
             alert("You need to add file")
+            return
+        }
+        if (fieldSelected == "" || subjectSelected == "" || semesterSelected == ""){
+            alert ("Selet a Field, Semester and Subject")
             return
         }
 
@@ -195,18 +206,35 @@ export function Co(){
         const lines = fileContent.split('\n'); // Split by new line character
         lines.forEach((line, index) => {
             // const aijsonresp = getairesponse(line) 
-
-            const jsonData = { "question": line, "create": false, "evaluate": false, "analysis": false, "apply": false, "understand": false, "remember": false }
+            var jsonData = {}
+            if (courseOutcomeMap[fieldSelected] && courseOutcomeMap[fieldSelected][semesterSelected] && courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected]){
+            jsonData = {
+                "question": line,
+                ...courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected].reduce((acc, key) => {
+                    acc[key] = 0; // Set each key to 0
+                    return acc;
+                }, {}),
+            }
+            }
             newData.push(jsonData)
         });
         setdatainjson(newData)
     }, [fileContent])
 
+    // this used to export excel file on clicking bloom button but instead of that now we are going to create a new widow showing it in table form
+    // useEffect(() => {
+    //     if (datainjson.length == 0 ){
+    //         return
+    //     }
+    //     handleXlsxExport(datainjson)
+    // }, [datainjson])
+
     useEffect(() => {
         if (datainjson.length == 0 ){
             return
         }
-        handleXlsxExport(datainjson)
+        // open new window
+        setOpenMappedCO(true) 
     }, [datainjson])
 
     // these use effects hide the already opened lists if other list is clicked on
@@ -232,25 +260,63 @@ export function Co(){
 
     return (
         <div className=" w-full h-full bg-gradient-to-bl from-blue-900 to-cyan-400 justify-center items-center flex flex-col">
+           { openMappedCO?
+        //    <>
+        //     <div onClick={() => {setOpenMappedCO(!openMappedCO)}} className="absolute top-0 left-0 w-full h-full"></div>
+        //     <div className=" z-20 absolute top-0 left-0 scale-95 bg-slate-800/25 w-full h-full rounded-lg backdrop-blur-sm border flex justify-center items-center"></div>
+        //    </>
+        < CoMappedComponent setOpenMappedCO={setOpenMappedCO}  openMappedCO={openMappedCO} datainjson={datainjson}/>
+            :""
+           } 
             <div className=" font-bold text-center font-mono text-2xl text-white"> CO Mapper</div>
             <div className=" flex m-4 justify-center">
                 <div onClick={() => {setOpenfieldlist(!openFieldlist)}}  role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md text-center flex justify-center">
                     {(fieldSelected == "")? "Select Field":fieldSelected}
-                    {openFieldlist? <div className="z-20 bg-cyan-400 h-fit w-fit absolute rounded-md translate-y-12 border-2 font-mono p-2">{listOfFields}</div>:""}
+                    {openFieldlist? <div className="z-20 bg-cyan-400 h-fit w-fit absolute rounded-md translate-y-12 border-2 border-slate-800/60 font-mono p-2">{listOfFields}</div>:""}
                 </div>
                 <div onClick={() => {setOpenSemlist(!openSemlist)}} role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md relative text-center flex justify-center">
                     {(semesterSelected == "")? "Select Semester":semesterSelected}
-                    {openSemlist? <div className="z-20 bg-cyan-400 h-fit w-32 absolute rounded-md translate-y-12  border-2 font-mono p-2">{listOfSemesters}</div>:""}
+                    {openSemlist? <div className="z-20 bg-cyan-400 h-fit w-32 absolute rounded-md translate-y-12  border-2 border-slate-800/60 font-mono p-2">{listOfSemesters}</div>:""}
                 </div>
                 <div onClick={() => {setOpensubjectlist(!opensubjectlist)}} role={"button"}  className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md relative text-center flex justify-center" >
                     {(subjectSelected == "")? "Select Subject":subjectSelected}
-                    { opensubjectlist?<div className="z-20 bg-cyan-400 h-fit w-60 absolute rounded-md translate-y-12 border-2">{listOfSubjects}</div>:""}
+                    { opensubjectlist?<div className="z-20 bg-cyan-400 h-fit w-60 absolute rounded-md translate-y-12 border-2 border-slate-800/60">{listOfSubjects}</div>:""}
                 </div>
             </div>
-
+            <div className=" flex justify-center items-center p-2 m-2 font-mono">{setOfCourseOurcomesBasedOnSelectedSubject}</div>
             <MyDropzone files={files} setFiles={setFiles}/>
             <div role={"button"} onClick={handleBloom} className=" bg-green-400 hover:bg-emerald-400 hover:px-10 duration-200 m-4 p-4 px-8 rounded-full font-bold font-mono">
-                {bloomLoading? "Loading...":"Get Bloom"}
+                {bloomLoading? "Loading...":"Get CO Mapped"}
+            </div>
+        </div>
+    )
+}
+
+function CoMappedComponent(props){
+    const qCotable = (
+        props.datainjson.map(data => (
+            <div className=" flex justify-around">
+                <div className="w-3/5 text-center">{data.question}</div>
+                {Object.keys(data).filter(key => key !== 'question').map((key, index) => (
+            <div key={index} className="px-3 border-slate-800">{data[key]}</div>
+        ))}
+            </div>
+        )))
+
+    return (
+        <div>
+            <div onClick={() => {props.setOpenMappedCO(!props.openMappedCO)}} className="absolute top-0 left-0 w-full h-full"></div>
+            <div className=" z-20 absolute top-0 left-0 scale-95 bg-slate-800/25 w-full h-full rounded-lg backdrop-blur-sm border p-3 font-mono text-xl text-white/90">
+                <div className=" flex justify-around"> 
+                <div className=" text-center w-3/5">Questions</div>
+                <div className=" px-3  border-slate-800">CO1</div>
+                <div className=" px-3  border-slate-800">CO2</div>
+                <div className=" px-3  border-slate-800">CO3</div>
+                <div className=" px-3  border-slate-800">CO4</div>
+                <div className=" px-3  border-slate-800">CO5</div>
+                <div className=" px-3  border-slate-800">CO6</div>
+                </div>
+            {qCotable}
             </div>
         </div>
     )
