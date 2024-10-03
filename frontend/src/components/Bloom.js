@@ -4,7 +4,7 @@ import {utils, read, writeXLSX, writeFile} from "xlsx"
 // import dotenv from "dotenv"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 
-export function MainScreen(){
+export function Bloom(){
     const [files, setFiles] = useState([])
     const [bloomLoading, setBloomLoading] = useState(false)
     const [fileContent, setFileContent] = useState("")
@@ -73,7 +73,18 @@ read the question above and tell me if the question is valid in blooms taxonomy 
             console.log(text)
             return text
     }
-
+    function getBloomsTaxonomy(question){
+        var bloombloom
+        var keywords = {
+            'Remember': ['define', 'list', 'recall', 'name'],
+            'Understand': ['explain', 'describe', 'discuss'],
+            'Apply': ['use', 'demonstrate', 'apply'],
+            'Analyze': ['analyze', 'differentiate', 'compare'],
+            'Evaluate': ['evaluate', 'judge', 'critique'],
+            'Create': ['create', 'design', 'construct']
+        }
+        return bloombloom
+    }
     useEffect(() => {
         // after hitting get bloom we will get our content and this hook will get triggered
         // so even if there are multiple files in queue, each time a fileContent gets changed we asume next file in queue has been added to do query 
@@ -97,14 +108,20 @@ read the question above and tell me if the question is valid in blooms taxonomy 
 
         handleXlsxExport(datainjson)
     }, [datainjson])
-
+    const sems = ["Sem 1","Sem 2","Sem 3","Sem 4","Sem 5","Sem 6","Sem 7","Sem 8"]
+    const listOfSemesters = sems.map((sem) => (
+        <div className=" border-b-2 p-3">
+            {sem}
+            {/* <div className=" bg-white w-full h-1 rounded-md"></div> */}
+        </div>
+    ))
     return (
         <div className=" w-full h-full bg-gradient-to-bl from-blue-900 to-cyan-400 justify-center items-center flex flex-col">
             <div className=" font-bold text-center font-mono text-2xl text-white"> Attainment AI </div>
             <div className=" flex m-4 justify-center">
                 <div onClick={() => {setOpenSemlist(!openSemlist)}} role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md relative text-center">
                     Select Semester
-                    {openSemlist? <div className="z-20 bg-cyan-400 h-96 w-60 absolute rounded-md -translate-x-10 translate-y-5 border-2"></div>:""}
+                    {openSemlist? <div className="z-20 bg-cyan-400 h-96 w-60 absolute rounded-md -translate-x-10 translate-y-5 border-2 font-mono p-4">{listOfSemesters}</div>:""}
                 </div>
                 <div onClick={() => {setOpensubjectlist(!opensubjectlist)}} role={"button"}  className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md relative text-center" >
                     Select Subject
@@ -127,10 +144,6 @@ function MyDropzone(props){
         props.setFiles((prevFiles) => [...prevFiles, ...acceptedFiles])
     },[])
 
-    // useEffect(() => {
-    //     console.log(files)
-    // }, [files])
-    
     const { getRootProps, getInputProps, isDragActive} = useDropzone({ onDrop })
 
     return (
