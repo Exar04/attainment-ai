@@ -9,9 +9,8 @@ export function Bloom(){
     const [bloomLoading, setBloomLoading] = useState(false)
     const [fileContent, setFileContent] = useState("")
     const [datainjson, setdatainjson] = useState([])
+    const [activateBloomOutput, setActivateBloomOutput] = useState(false)
 
-    const [openSemlist, setOpenSemlist] = useState(false) 
-    const [opensubjectlist, setOpensubjectlist] = useState(false)
     // dotenv.config()
     const genAI = new GoogleGenerativeAI(process.env.REACT_GEMINI_API_KEY) 
     const model = genAI.getGenerativeModel({model:"gemini-pro"})
@@ -25,6 +24,7 @@ export function Bloom(){
         }
 
         setBloomLoading(true)
+        setActivateBloomOutput(true)
 
         // rn we are just handling the first input file
         // but later we will add functionality to do batch analysis
@@ -95,19 +95,21 @@ read the question above and tell me if the question is valid in blooms taxonomy 
         lines.forEach((line, index) => {
             // const aijsonresp = getairesponse(line) 
 
-            const jsonData = { "question": line, "create": false, "evaluate": false, "analysis": false, "apply": false, "understand": false, "remember": false }
+            // const jsonData = { "question": line, "create": false, "evaluate": false, "analysis": false, "apply": false, "understand": false, "remember": false }
+            const jsonData = { "question": line , "taxonomy":[]}
             newData.push(jsonData)
         });
+        // newData.pop()
         setdatainjson(newData)
     }, [fileContent])
 
-    useEffect(() => {
-        if (datainjson.length == 0 ){
-            return
-        }
+    // useEffect(() => {
+    //     if (datainjson.length == 0 ){
+    //         return
+    //     }
+    //     handleXlsxExport(datainjson)
+    // }, [datainjson])
 
-        handleXlsxExport(datainjson)
-    }, [datainjson])
     const sems = ["Sem 1","Sem 2","Sem 3","Sem 4","Sem 5","Sem 6","Sem 7","Sem 8"]
     const listOfSemesters = sems.map((sem) => (
         <div className=" border-b-2 p-3">
@@ -117,8 +119,9 @@ read the question above and tell me if the question is valid in blooms taxonomy 
     ))
     return (
         <div className=" w-full h-full bg-gradient-to-bl from-blue-900 to-cyan-400 justify-center items-center flex flex-col">
-            <div className=" font-bold text-center font-mono text-2xl text-white"> Attainment AI </div>
-            <div className=" flex m-4 justify-center">
+            { activateBloomOutput? < BloomMappedComponent datainjson={datainjson} setdatainjson={setdatainjson} setActivateBloomOutput={setActivateBloomOutput} activateBloomOutput={activateBloomOutput}/>:""}
+            <div className=" font-bold text-center font-mono text-2xl text-white mt-6 mb-9"> Get Blooms Taxonomy </div>
+            {/* <div className=" flex m-4 justify-center">
                 <div onClick={() => {setOpenSemlist(!openSemlist)}} role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md relative text-center">
                     Select Semester
                     {openSemlist? <div className="z-20 bg-cyan-400 h-96 w-60 absolute rounded-md -translate-x-10 translate-y-5 border-2 font-mono p-4">{listOfSemesters}</div>:""}
@@ -128,10 +131,10 @@ read the question above and tell me if the question is valid in blooms taxonomy 
                     { opensubjectlist?<div className="z-20 bg-cyan-400 h-96 w-60 absolute rounded-md -translate-x-10 translate-y-5 border-2"></div>:""}
                 </div>
                 <div role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md text-center">Select Field</div>
-            </div>
+            </div> */}
 
             <MyDropzone files={files} setFiles={setFiles}/>
-            <div role={"button"} onClick={handleBloom} className=" bg-green-400 hover:bg-emerald-400 hover:px-10 duration-200 m-4 p-4 px-8 rounded-full font-bold font-mono">
+            <div role={"button"} onClick={handleBloom} className=" bg-green-400 hover:bg-emerald-400 hover:px-10 duration-200 m-9 p-4 px-8 rounded-full font-bold font-mono">
                 {bloomLoading? "Loading...":"Get Bloom"}
             </div>
         </div>
@@ -241,6 +244,68 @@ function SetUploadedFilesLogo(props) {
     return(
         <div className=" relative w-full h-full flex justify-center items-center">
             {angledImgs}
+        </div>
+    )
+}
+
+function BloomMappedComponent(props){
+    function getBloomsTaxonomy(question){
+        var bloombloom = []
+        var keywords = {
+            'Remember': ['define', 'list', 'recall', 'name', 'what'],
+            'Understand': ['explain', 'describe', 'discuss'],
+            'Apply': ['use', 'demonstrate', 'apply'],
+            'Analyze': ['analyze', 'differentiate', 'compare'],
+            'Evaluate': ['evaluate', 'judge', 'critique'],
+            'Create': ['create', 'design', 'construct']
+        }
+        var lowerQuestion = question.toLowerCase();
+
+        for (var level in keywords) {
+            var levelKeywords = keywords[level];
+    
+            // Check if any of the keywords for this level are in the question
+            for (var i = 0; i < levelKeywords.length; i++) {
+                if (lowerQuestion.includes(levelKeywords[i])) {
+                    bloombloom.push(level);
+                    break; // Stop after finding the first match for this level
+                }
+            }
+        }
+        return bloombloom
+    }
+
+    const [bloomedData, setBloomedData] = useState([])
+    useEffect(() => {
+        var templistofBloomedData = []
+        console.log(props.datainjson)
+        props.datainjson.map((data, index) => {
+            var tempQuestionAndItstaxo = {"question":data.question, "taxonomy":getBloomsTaxonomy(data.question)}
+
+            templistofBloomedData.push(tempQuestionAndItstaxo)
+        }) 
+        setBloomedData(templistofBloomedData)
+        // props.setdatainjson()
+    }, [props.datainjson])
+
+    const qBloomtable = (
+        bloomedData.map((data, index) => (
+            <div key={index} className=" flex justify-around">
+                <div className="w-3/5 text-center">{data.question}</div>
+                <div className=" flex">{data.taxonomy.map((taxo,index) => <div key={index}>{taxo}{(index == data.taxonomy.length-1)?"":","}</div>)}</div>
+            </div>
+        )))
+
+    return (
+        <div>
+            <div onClick={() => {props.setActivateBloomOutput(!props.activateBloomOutput)}} className="absolute top-0 left-0 w-full h-full"></div>
+            <div className=" z-20 absolute top-0 left-0 scale-95 bg-slate-800/25 w-full h-full rounded-lg backdrop-blur-sm border p-3 font-mono text-xl text-white/90">
+                <div className=" flex justify-around"> 
+                <div className=" text-center w-3/5">Questions</div>
+                <div className=" px-3  border-slate-800">Taxonomy</div>
+                </div>
+            {qBloomtable}
+            </div>
         </div>
     )
 }

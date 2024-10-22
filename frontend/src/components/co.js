@@ -112,13 +112,13 @@ export function Co(){
     }
 
 
-    const listOfFields = fields.map((field) => (
-        <div onClick={() => {setFieldSelected(field)}} className="p-3 text-xl text-slate-800 hover:text-white hover:bg-slate-800 hover:scale-125 rounded-lg duration-150">{field}</div>
+    const listOfFields = fields.map((field, index) => (
+        <div key={index} onClick={() => {setFieldSelected(field)}} className="p-3 text-xl text-slate-800 hover:text-white hover:bg-slate-800 hover:scale-125 rounded-lg duration-150">{field}</div>
     ))
 
-    const listOfSemesters = (fieldSelected == "Engineering")? enginneringSems.map((sem) => (
-        <div onClick={() => { setSemesterSelected(sem)}} className=" p-2 text-xl text-slate-800 hover:text-white hover:bg-slate-800 hover:scale-125 rounded-lg duration-150">{sem}</div>
-    )):((""))
+    const listOfSemesters = (fieldSelected == "Engineering")? enginneringSems.map((sem, index) => (
+        <div key={index} onClick={() => { setSemesterSelected(sem)}} className=" p-2 text-xl text-slate-800 hover:text-white hover:bg-slate-800 hover:scale-125 rounded-lg duration-150">{sem}</div>
+    )):(("No Sem Available"))
 
     const listOfSubjects = subjectMap[fieldSelected] && subjectMap[fieldSelected][semesterSelected] ? (
         subjectMap[fieldSelected][semesterSelected].map((sub) => (
@@ -128,7 +128,7 @@ export function Co(){
     
     const setOfCourseOurcomesBasedOnSelectedSubject = courseOutcomeMap[fieldSelected] && courseOutcomeMap[fieldSelected][semesterSelected] && courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected] ? (
         courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected].map((co) => (
-            <div className="text-center p-2 text-white hover:z-10 hover:scale-125 hover:rounded-lg hover:bg-slate-800 hover:border-0 border-x border-slate-800/60 duration-150 text-sm ">{co}</div>
+            <div className="text-center p-2 text-white hover:z-10 hover:scale-125 hover:rounded-lg hover:bg-slate-800 hover:border-0 border-x border-slate-800/60 duration-150 text-sm " key={co}>{co}</div>
         ))
     ):""
 
@@ -175,26 +175,26 @@ export function Co(){
         writeFile(wb, "myexceltest.xlsx")
     }
 
-    async function getairesponse(question){
-            const prompt = `${question}
-    read the question above and tell me if the question is valid in blooms taxonomy and only give response in following example format
-    {
-        <replace this with above given question>:{
-            create: false
-            evaluate: false
-            analysis: false 
-            apply: false 
-            understand:false
-            remember: false 
+    async function getairesponse(question, listOfCo){
+        const prompt = `${question}
+        read the question above and give me the allocation of marks across course outcome based on given course outcome. and only give me response in below given json format
+        {
+            <replace this with above given question>:{
 
-        }
-    }`
+                ${listOfCo[0]}: <allocatedMark>
+                ${listOfCo[1]}: <allocatedMark>
+                ${listOfCo[2]}: <allocatedMark>
+                ${listOfCo[3]}: <allocatedMark>
+                ${listOfCo[4]}: <allocatedMark>
+                ${listOfCo[5]}: <allocatedMark>
+            }
+        }`
 
-            const result = await model.generateContent(prompt)
-            const response = result.response
-            const text = response.text()
-            console.log(text)
-            return text
+        const result = await model.generateContent(prompt)
+        const response = result.response
+        const text = response.text()
+        console.log(text)
+        return text
     }
 
     useEffect(() => {
@@ -210,14 +210,19 @@ export function Co(){
             if (courseOutcomeMap[fieldSelected] && courseOutcomeMap[fieldSelected][semesterSelected] && courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected]){
             jsonData = {
                 "question": line,
-                ...courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected].reduce((acc, key) => {
-                    acc[key] = 0; // Set each key to 0
-                    return acc;
-                }, {}),
+                // ...courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected].reduce((acc, key) => {
+                //     acc[key] = 0; // Set each key to 0
+                //     return acc;
+                // }, {}),
+
+                "listOfCo": [
+                    ...courseOutcomeMap[fieldSelected][semesterSelected][subjectSelected],
+                ]
             }
             }
             newData.push(jsonData)
         });
+        // console.log(newData)
         setdatainjson(newData)
     }, [fileContent])
 
@@ -257,7 +262,6 @@ export function Co(){
         }
     }, [opensubjectlist])
 
-
     return (
         <div className=" w-full h-full bg-gradient-to-bl from-blue-900 to-cyan-400 justify-center items-center flex flex-col">
            { openMappedCO?
@@ -269,7 +273,7 @@ export function Co(){
             :""
            } 
             <div className=" font-bold text-center font-mono text-2xl text-white"> CO Mapper</div>
-            <div className=" flex m-4 justify-center">
+            <div className=" flex m-1 justify-center">
                 <div onClick={() => {setOpenfieldlist(!openFieldlist)}}  role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md text-center flex justify-center">
                     {(fieldSelected == "")? "Select Field":fieldSelected}
                     {openFieldlist? <div className="z-20 bg-cyan-400 h-fit w-fit absolute rounded-md translate-y-12 border-2 border-slate-800/60 font-mono p-2">{listOfFields}</div>:""}
@@ -292,14 +296,51 @@ export function Co(){
     )
 }
 
+
 function CoMappedComponent(props){
+
+
+    const genAI = new GoogleGenerativeAI(process.env.REACT_GEMINI_API_KEY) 
+    const model = genAI.getGenerativeModel({model:"gemini-pro"})
+
+    async function getairesponse(question, listOfCo){
+        const prompt = `${question}
+        read the question above and give me the allocation of marks across course outcome based on given course outcome. and only give me response in below given json format
+        {
+            <replace this with above given question>:{
+
+                ${listOfCo[0]}: <allocatedMark>
+                ${listOfCo[1]}: <allocatedMark>
+                ${listOfCo[2]}: <allocatedMark>
+                ${listOfCo[3]}: <allocatedMark>
+                ${listOfCo[4]}: <allocatedMark>
+                ${listOfCo[5]}: <allocatedMark>
+            }
+        }`
+        // console.log(prompt)
+        const result = await model.generateContent(prompt)
+        const response = result.response
+        const text = response.text()
+        console.log(text)
+        return text
+    }
+    useEffect(() => {
+        var listofResp = [] 
+        props.datainjson.map(data => {
+            // var resp = getairesponse(data.question, data.listOfCo)
+            // listofResp.push(resp)
+        })
+    })
+
+
     const qCotable = (
-        props.datainjson.map(data => (
-            <div className=" flex justify-around">
+        props.datainjson.map((data, index) => (
+            <div key={index} className=" flex justify-around">
                 <div className="w-3/5 text-center">{data.question}</div>
                 {Object.keys(data).filter(key => key !== 'question').map((key, index) => (
-            <div key={index} className="px-3 border-slate-800">{data[key]}</div>
-        ))}
+                    // <div key={index} className="px-3 border-slate-800">{data[key]}</div>
+                    <div key={index}></div>
+                ))}
             </div>
         )))
 
