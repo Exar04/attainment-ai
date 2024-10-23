@@ -332,7 +332,6 @@ function CoMappedComponent(props){
         })
     })
 
-
     const qCotable = (
         props.datainjson.map((data, index) => (
             <div key={index} className=" flex justify-around">

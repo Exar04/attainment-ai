@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { MainPage } from "./pages/mainPage";
 import { Bloom } from "./components/Bloom";
 import { Co } from "./components/co";
+import { Aboutus } from "./components/Aboutus";
 
 export const router = createBrowserRouter([
     // {
@@ -28,11 +29,11 @@ export const router = createBrowserRouter([
         },
         {
           path: "/aboutus",
-          element: "hehe",
+          element: <Aboutus />,
         },
         {
           path: "/",
-          element: "hehe",
+          element: <Aboutus />,
         },
       ],
     },
