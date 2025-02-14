@@ -303,7 +303,7 @@ function CoMappedComponent(props){
     const [mappedCo, setmappedCo] =  useState([])
 
     // const genAI = new GoogleGenerativeAI(process.env.REACT_GEMINI_API_KEY) 
-    const genAI = new GoogleGenerativeAI("AIzaSyBN2dLM8Ln0AMTLfo-cEGbUI8DgdA-pqxI") 
+    // const genAI = new GoogleGenerativeAI("")  // copy paste the api key her
     const model = genAI.getGenerativeModel({model:"gemini-pro"})
 
     async function getairesponse(question, listOfCo){
