@@ -3,6 +3,8 @@ import {useDropzone} from "react-dropzone"
 import {utils, read, writeXLSX, writeFile} from "xlsx"
 // import dotenv from "dotenv"
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import getPointsMappedForCnnd from "../nlp/subjects/cnnd"
+import allocate_points from "../nlp/match"
 
 export function Co(){
     const [files, setFiles] = useState([])
@@ -269,7 +271,7 @@ export function Co(){
         //     <div onClick={() => {setOpenMappedCO(!openMappedCO)}} className="absolute top-0 left-0 w-full h-full"></div>
         //     <div className=" z-20 absolute top-0 left-0 scale-95 bg-slate-800/25 w-full h-full rounded-lg backdrop-blur-sm border flex justify-center items-center"></div>
         //    </>
-        < CoMappedComponent setOpenMappedCO={setOpenMappedCO}  openMappedCO={openMappedCO} datainjson={datainjson}/>
+        < CoMappedComponent setOpenMappedCO={setOpenMappedCO}  openMappedCO={openMappedCO} datainjson={datainjson} subjectSelected={subjectSelected}/>
             :""
            } 
             <div className=" font-bold text-center font-mono text-2xl text-white"> CO Mapper</div>
@@ -298,57 +300,118 @@ export function Co(){
 
 
 function CoMappedComponent(props){
+    const [mappedCo, setmappedCo] =  useState([])
 
-
-    const genAI = new GoogleGenerativeAI(process.env.REACT_GEMINI_API_KEY) 
+    // const genAI = new GoogleGenerativeAI(process.env.REACT_GEMINI_API_KEY) 
+    const genAI = new GoogleGenerativeAI("AIzaSyBN2dLM8Ln0AMTLfo-cEGbUI8DgdA-pqxI") 
     const model = genAI.getGenerativeModel({model:"gemini-pro"})
 
     async function getairesponse(question, listOfCo){
         const prompt = `${question}
         read the question above and give me the allocation of marks across course outcome based on given course outcome. and only give me response in below given json format
+        the total allocated marks should total to 5 marks
         {
             <replace this with above given question>:{
-
-                ${listOfCo[0]}: <allocatedMark>
-                ${listOfCo[1]}: <allocatedMark>
-                ${listOfCo[2]}: <allocatedMark>
-                ${listOfCo[3]}: <allocatedMark>
-                ${listOfCo[4]}: <allocatedMark>
-                ${listOfCo[5]}: <allocatedMark>
+                "${listOfCo[0]}": <allocatedMark> ,
+                "${listOfCo[1]}": <allocatedMark> ,
+                "${listOfCo[2]}": <allocatedMark> ,
+                "${listOfCo[3]}": <allocatedMark> ,
+                "${listOfCo[4]}": <allocatedMark> ,
+                "${listOfCo[5]}": <allocatedMark>
             }
         }`
         // console.log(prompt)
         const result = await model.generateContent(prompt)
-        const response = result.response
-        const text = response.text()
+        const response = await result.response
+        const text = await response.text()
         console.log(text)
         return text
     }
-    useEffect(() => {
-        var listofResp = [] 
-        props.datainjson.map(data => {
-            // var resp = getairesponse(data.question, data.listOfCo)
-            // listofResp.push(resp)
+
+    const fetchAiResponses = async () => {
+        const listOfResp = [];
+        await Promise.all(
+            props.datainjson.map(async (data) => {
+                const question = data.question;
+                const listOfCo = data.listOfCo; // Assuming your list of course outcomes are in this format
+
+                if (listOfCo && listOfCo.length > 0) {
+                    try{
+
+                    const resp = await getairesponse(question, listOfCo);
+                    var jsonresp = JSON.parse(resp)
+                    } catch (error){
+                        console.error("Error parsing JSON:", error);
+                    }
+                    listOfResp.push(jsonresp);
+                }
+            })
+        );
+        setmappedCo(listOfResp);
+    }
+    const mapCoUsingNlp = () => {
+        const listOfResp = [];
+        props.datainjson.map(async (data) => {
+            const question = data.question
+            const listOfCo = data.listOfCo; // Assuming your list of course outcomes are in this format
+
+            if (props.subjectSelected == "Computer Network and Network Design") {
+                const Mpoints = getPointsMappedForCnnd(question)
+                const pts = allocate_points(Mpoints)
+                const jsonresp = {
+                    question: {
+                        1: pts[0],
+                        2: pts[1],
+                        3: pts[2],
+                        4: pts[3],
+                        5: pts[4],
+                        6: pts[5]
+                    }
+                }
+                listOfResp.push(jsonresp)
+                console.log( jsonresp, question, listOfCo, pts)
+            }
         })
-    })
+        setmappedCo(listOfResp);
+    }
+    const lipo = ["Computer Network and Network Design"]
+    const [fetchonce, setfetchonce] = useState(true)
+    useEffect(() => {
+        if (!fetchonce){setfetchonce(!fetchonce); return }
+        setfetchonce(!fetchonce)
+
+        if (lipo.some(word => props.subjectSelected.toLowerCase().includes(word.toLowerCase()))) {
+            mapCoUsingNlp()
+        } else {
+            fetchAiResponses()
+        }
+    },[])
 
     const qCotable = (
-        props.datainjson.map((data, index) => (
-            <div key={index} className=" flex justify-around">
-                <div className="w-3/5 text-center">{data.question}</div>
-                {Object.keys(data).filter(key => key !== 'question').map((key, index) => (
-                    // <div key={index} className="px-3 border-slate-800">{data[key]}</div>
-                    <div key={index}></div>
-                ))}
-            </div>
-        )))
+        mappedCo.map((data, index) => {
+            const question = Object.keys(data)[0];
+            const answers = data[question];
+
+            return (
+                <div key={index} className="flex justify-around">
+                    <h2 className=" w-5/6 text-center" >{question}</h2>
+                    <ul className="flex justify-around w-full m-2">
+                        {Object.entries(answers).map(([subQuestion, value], idx) => (
+                            <li key={idx} className="">
+                                {value}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        }))
 
     return (
         <div>
             <div onClick={() => {props.setOpenMappedCO(!props.openMappedCO)}} className="absolute top-0 left-0 w-full h-full"></div>
             <div className=" z-20 absolute top-0 left-0 scale-95 bg-slate-800/25 w-full h-full rounded-lg backdrop-blur-sm border p-3 font-mono text-xl text-white/90">
                 <div className=" flex justify-around"> 
-                <div className=" text-center w-3/5">Questions</div>
+                <div className="text-center w-3/5">Questions</div>
                 <div className=" px-3  border-slate-800">CO1</div>
                 <div className=" px-3  border-slate-800">CO2</div>
                 <div className=" px-3  border-slate-800">CO3</div>
@@ -357,6 +420,7 @@ function CoMappedComponent(props){
                 <div className=" px-3  border-slate-800">CO6</div>
                 </div>
             {qCotable}
+            {/* {lulu} */}
             </div>
         </div>
     )
