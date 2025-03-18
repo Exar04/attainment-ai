@@ -4,6 +4,8 @@ import { MainPage } from "./pages/mainPage";
 import { Bloom } from "./components/Bloom";
 import { Co } from "./components/co";
 import { Aboutus } from "./components/Aboutus";
+import { CourseExitSurveyForm } from "./components/courseExitSurveyForm";
+import { ExitSurvey } from "./components/exitSurvey";
 
 export const router = createBrowserRouter([
     // {
@@ -26,6 +28,14 @@ export const router = createBrowserRouter([
         {
           path: "/bloom",
           element: <Bloom />,
+        },
+        {
+          path: "/exitSurvey",
+          element: <ExitSurvey />,
+        },
+        {
+          path: "/feedbackForm",
+          element: <CourseExitSurveyForm />,
         },
         {
           path: "/aboutus",

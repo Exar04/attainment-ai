@@ -5,6 +5,7 @@ import {utils, read, writeXLSX, writeFile} from "xlsx"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import getPointsMappedForCnnd from "../nlp/subjects/cnnd"
 import allocate_points from "../nlp/match"
+import { enginneringSems, diplomaSems, fields, subjectMap, courseOutcomeMap } from "./commonData"
 
 export function Co(){
     const [files, setFiles] = useState([])
@@ -23,95 +24,95 @@ export function Co(){
     // const [engSemesterSelected, setEngSemesterSelected] = useState("")
 
 
-    const enginneringSems = ["Sem 1","Sem 2","Sem 3","Sem 4","Sem 5","Sem 6","Sem 7","Sem 8"]
-    const diplomaSems = []
-    const fields = ["Engineering", "Diploma"]
+    // const enginneringSems = ["Sem 1","Sem 2","Sem 3","Sem 4","Sem 5","Sem 6","Sem 7","Sem 8"]
+    // const diplomaSems = []
+    // const fields = ["Engineering", "Diploma"]
 
-    // const [subjectMap, setSubjectMap] = useState({"Engineering": enginneringSems, "Diploma":diplomaSems})
-    const subjectMap = {
-        "Engineering":{
-            "Sem 1":["Applied Maths I", "Applied Physics", "Applied Chemestry", "Engineering Mechanics", "Basic Electric and Electronics Engineering"],
-            "Sem 2":["Applied Maths II", "Elective Physics", "Elective Chemestry", "Engineering Graphics", "Program Core Course"],
-            "Sem 3":["Engineering Math III", "Data Structures and Analysis", "Database Management System", "Principle of Communciations", "Paradigms and Computer Programming Fundamentals"],
-            "Sem 4":["Engineering Math III", "Computer Network and Network Design", "Operating System", "Automata Theory", "Computer Organization and Architecture"],
-            "Sem 5":[],
-            "Sem 6":[],
-            "Sem 7":[],
-            "Sem 8":[]
-        }
-    }
+    // // const [subjectMap, setSubjectMap] = useState({"Engineering": enginneringSems, "Diploma":diplomaSems})
+    // const subjectMap = {
+    //     "Engineering":{
+    //         "Sem 1":["Applied Maths I", "Applied Physics", "Applied Chemestry", "Engineering Mechanics", "Basic Electric and Electronics Engineering"],
+    //         "Sem 2":["Applied Maths II", "Elective Physics", "Elective Chemestry", "Engineering Graphics", "Program Core Course"],
+    //         "Sem 3":["Engineering Math III", "Data Structures and Analysis", "Database Management System", "Principle of Communciations", "Paradigms and Computer Programming Fundamentals"],
+    //         "Sem 4":["Engineering Math III", "Computer Network and Network Design", "Operating System", "Automata Theory", "Computer Organization and Architecture"],
+    //         "Sem 5":[],
+    //         "Sem 6":[],
+    //         "Sem 7":[],
+    //         "Sem 8":[]
+    //     }
+    // }
 
-    const courseOutcomeMap = {
-        "Engineering": {
-            "Sem 1":{
-                "Applied Maths I":[], 
-                "Applied Physics":[], 
-                "Applied Chemestry":[], 
-                "Engineering Mechanics":[], 
-                "Basic Electric and Electronics Engineering":[]
-            },
-            "Sem 2":{
-                "Applied Maths II":[], 
-                "Elective Physics":[], 
-                "Elective Chemestry":[], 
-                "Engineering Graphics":[], 
-                "Program Core Course":[]
-            },
-            "Sem 3":{
-                "Engineering Math III":[
-                    "Apply the concept of Laplace transform to solve the real integrals in enginnering problems",
-                    "Apply the concept of inverse laplace transform of various functions in engineering problems",
-                    "Expand the periodic function by using Fourier series for real life problems and complex engineering problems",
-                    "Find orthogonal trajectories and analytic function by using basic concepts of complex variable theory",
-                    "Apply the concept of Correlation and Regression to the engineering problems in data science, machine learning and AI",
-                    "Illustrate understanding of concepts of probability and expectation for getting the spread of the data and distribution of probabilities"
-                ], 
-                "Data Structures and Analysis":[
-                    "Classify and Apply the concepts of stacks, queue and linked list in real life problem solving",
-                    "Classify, apply and analyze the concept trees in real life problem solving",
-                    "Illustrage and justify the concepts of graphs in real life problem solving",
-                    "List and examine the concepts of sorting, searching techniques in real life problem solving",
-                    "Use and identify the concept of recursion, hashing in real life problem solving",
-                    "Examine and justify different methods of stacks, queues, linked list, trees and graphs to various applications"
-                ], 
-                "Database Management System":[
-                    "Identify the need of Database Management System",
-                    "Design conceptual model for real life applications",
-                    "Create Relational Model for real life applicaions",
-                    "Formulate query using SQL commands",
-                    "Apply the concept of normalization to relational database design",
-                    "Demonstrate the concept of transaction, concurrency and recovery"
-                ], 
-                "Principle of Communciations":[
-                    "Describe analog and digital communication systems",
-                    "Differentiate types of noise , analysis the fourier transform of time and frequency domain",
-                    "Design transmitter and reciever of AM, DSB, SSB and FM",
-                    "Describe Sampling theorem and pulse modulation systems",
-                    "Explain multiplexing and digital band pass modulation techniques",
-                    "Describe electromagnetic rediation and propagation of waves"
-                ], 
-                "Paradigms and Computer Programming Fundamentals":[
-                    "Understand and compare different programming paradigms",
-                    "Understand and Objectve orieanted constructs and use them in program design",
-                    "Understand the concept of declarative programming paradigms through functional and logic programming",
-                    "Design and Develop program based on declarative programming paradigm using functional and logic programming",
-                    "Understand the role of concurrency in parallel and distributed programming",
-                    "Understand different application domains for use of scripting languages"
-                ]
-            },
-            "Sem 4":{
-                "Engineering Math III":[], 
-                "Computer Network and Network Design":[], 
-                "Operating System":[], 
-                "Automata Theory":[], 
-                "Computer Organization and Architecture":[]
-            },
-            "Sem 5":{},
-            "Sem 6":{},
-            "Sem 7":{},
-            "Sem 8":{}
-        }
-    }
+    // const courseOutcomeMap = {
+    //     "Engineering": {
+    //         "Sem 1":{
+    //             "Applied Maths I":[], 
+    //             "Applied Physics":[], 
+    //             "Applied Chemestry":[], 
+    //             "Engineering Mechanics":[], 
+    //             "Basic Electric and Electronics Engineering":[]
+    //         },
+    //         "Sem 2":{
+    //             "Applied Maths II":[], 
+    //             "Elective Physics":[], 
+    //             "Elective Chemestry":[], 
+    //             "Engineering Graphics":[], 
+    //             "Program Core Course":[]
+    //         },
+    //         "Sem 3":{
+    //             "Engineering Math III":[
+    //                 "Apply the concept of Laplace transform to solve the real integrals in enginnering problems",
+    //                 "Apply the concept of inverse laplace transform of various functions in engineering problems",
+    //                 "Expand the periodic function by using Fourier series for real life problems and complex engineering problems",
+    //                 "Find orthogonal trajectories and analytic function by using basic concepts of complex variable theory",
+    //                 "Apply the concept of Correlation and Regression to the engineering problems in data science, machine learning and AI",
+    //                 "Illustrate understanding of concepts of probability and expectation for getting the spread of the data and distribution of probabilities"
+    //             ], 
+    //             "Data Structures and Analysis":[
+    //                 "Classify and Apply the concepts of stacks, queue and linked list in real life problem solving",
+    //                 "Classify, apply and analyze the concept trees in real life problem solving",
+    //                 "Illustrage and justify the concepts of graphs in real life problem solving",
+    //                 "List and examine the concepts of sorting, searching techniques in real life problem solving",
+    //                 "Use and identify the concept of recursion, hashing in real life problem solving",
+    //                 "Examine and justify different methods of stacks, queues, linked list, trees and graphs to various applications"
+    //             ], 
+    //             "Database Management System":[
+    //                 "Identify the need of Database Management System",
+    //                 "Design conceptual model for real life applications",
+    //                 "Create Relational Model for real life applicaions",
+    //                 "Formulate query using SQL commands",
+    //                 "Apply the concept of normalization to relational database design",
+    //                 "Demonstrate the concept of transaction, concurrency and recovery"
+    //             ], 
+    //             "Principle of Communciations":[
+    //                 "Describe analog and digital communication systems",
+    //                 "Differentiate types of noise , analysis the fourier transform of time and frequency domain",
+    //                 "Design transmitter and reciever of AM, DSB, SSB and FM",
+    //                 "Describe Sampling theorem and pulse modulation systems",
+    //                 "Explain multiplexing and digital band pass modulation techniques",
+    //                 "Describe electromagnetic rediation and propagation of waves"
+    //             ], 
+    //             "Paradigms and Computer Programming Fundamentals":[
+    //                 "Understand and compare different programming paradigms",
+    //                 "Understand and Objectve orieanted constructs and use them in program design",
+    //                 "Understand the concept of declarative programming paradigms through functional and logic programming",
+    //                 "Design and Develop program based on declarative programming paradigm using functional and logic programming",
+    //                 "Understand the role of concurrency in parallel and distributed programming",
+    //                 "Understand different application domains for use of scripting languages"
+    //             ]
+    //         },
+    //         "Sem 4":{
+    //             "Engineering Math III":[], 
+    //             "Computer Network and Network Design":[], 
+    //             "Operating System":[], 
+    //             "Automata Theory":[], 
+    //             "Computer Organization and Architecture":[]
+    //         },
+    //         "Sem 5":{},
+    //         "Sem 6":{},
+    //         "Sem 7":{},
+    //         "Sem 8":{}
+    //     }
+    // }
 
 
     const listOfFields = fields.map((field, index) => (
@@ -304,7 +305,7 @@ function CoMappedComponent(props){
 
     // const genAI = new GoogleGenerativeAI(process.env.REACT_GEMINI_API_KEY) 
     // const genAI = new GoogleGenerativeAI("")  // copy paste the api key her
-    const model = genAI.getGenerativeModel({model:"gemini-pro"})
+    // const model = genAI.getGenerativeModel({model:"gemini-pro"})
 
     async function getairesponse(question, listOfCo){
         const prompt = `${question}
@@ -321,11 +322,11 @@ function CoMappedComponent(props){
             }
         }`
         // console.log(prompt)
-        const result = await model.generateContent(prompt)
-        const response = await result.response
-        const text = await response.text()
-        console.log(text)
-        return text
+        // const result = await model.generateContent(prompt)
+        // const response = await result.response
+        // const text = await response.text()
+        // console.log(text)
+        // return text
     }
 
     const fetchAiResponses = async () => {
@@ -359,7 +360,7 @@ function CoMappedComponent(props){
                 const Mpoints = getPointsMappedForCnnd(question)
                 const pts = allocate_points(Mpoints)
                 const jsonresp = {
-                    question: {
+                    [question]: {
                         1: pts[0],
                         2: pts[1],
                         3: pts[2],
@@ -369,7 +370,7 @@ function CoMappedComponent(props){
                     }
                 }
                 listOfResp.push(jsonresp)
-                console.log( jsonresp, question, listOfCo, pts)
+                console.log( jsonresp, "hel : " , question, listOfCo, pts)
             }
         })
         setmappedCo(listOfResp);
@@ -383,18 +384,21 @@ function CoMappedComponent(props){
         if (lipo.some(word => props.subjectSelected.toLowerCase().includes(word.toLowerCase()))) {
             mapCoUsingNlp()
         } else {
-            fetchAiResponses()
+            // fetchAiResponses()
+            alert("The NLP for this subject is still not out yet")
         }
     },[])
 
     const qCotable = (
         mappedCo.map((data, index) => {
+            console.log("gg : ", data)
             const question = Object.keys(data)[0];
             const answers = data[question];
 
             return (
-                <div key={index} className="flex justify-around">
-                    <h2 className=" w-5/6 text-center" >{question}</h2>
+                <div key={index} className="grid grid-cols-2">
+                {/* <div key={index} className="flex justify-around"> */}
+                    <h2 className=" grid grid-cols-2 mx-8 my-2" >{question}</h2>
                     <ul className="flex justify-around w-full m-2">
                         {Object.entries(answers).map(([subQuestion, value], idx) => (
                             <li key={idx} className="">
@@ -410,14 +414,16 @@ function CoMappedComponent(props){
         <div>
             <div onClick={() => {props.setOpenMappedCO(!props.openMappedCO)}} className="absolute top-0 left-0 w-full h-full"></div>
             <div className=" z-20 absolute top-0 left-0 scale-95 bg-slate-800/25 w-full h-full rounded-lg backdrop-blur-sm border p-3 font-mono text-xl text-white/90">
-                <div className=" flex justify-around"> 
-                <div className="text-center w-3/5">Questions</div>
-                <div className=" px-3  border-slate-800">CO1</div>
-                <div className=" px-3  border-slate-800">CO2</div>
-                <div className=" px-3  border-slate-800">CO3</div>
-                <div className=" px-3  border-slate-800">CO4</div>
-                <div className=" px-3  border-slate-800">CO5</div>
-                <div className=" px-3  border-slate-800">CO6</div>
+                <div className=" grid grid-cols-2">
+                    <div className=" mx-8 my-2">Questions</div>
+                    <div className="flex justify-around">
+                        <div className=" px-3  border-slate-800">CO1</div>
+                        <div className=" px-3  border-slate-800">CO2</div>
+                        <div className=" px-3  border-slate-800">CO3</div>
+                        <div className=" px-3  border-slate-800">CO4</div>
+                        <div className=" px-3  border-slate-800">CO5</div>
+                        <div className=" px-3  border-slate-800">CO6</div>
+                    </div>
                 </div>
             {qCotable}
             {/* {lulu} */}
