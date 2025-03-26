@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import {useDropzone} from "react-dropzone"
+import {MyDropzone} from "./commonData"
 import {utils, read, writeXLSX, writeFile} from "xlsx"
 // import dotenv from "dotenv"
 import { GoogleGenerativeAI } from "@google/generative-ai"
@@ -132,118 +132,12 @@ read the question above and tell me if the question is valid in blooms taxonomy 
                 </div>
                 <div role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md text-center">Select Field</div>
             </div> */}
-
-            <MyDropzone files={files} setFiles={setFiles}/>
+            <div className=" w-96 h-96">
+                <MyDropzone files={files} setFiles={setFiles} />
+            </div>
             <div role={"button"} onClick={handleBloom} className=" bg-green-400 hover:bg-emerald-400 hover:px-10 duration-200 m-9 p-4 px-8 rounded-full font-bold font-mono">
                 {bloomLoading? "Loading...":"Get Bloom"}
             </div>
-        </div>
-    )
-}
-
-function MyDropzone(props){
-
-    const onDrop = useCallback(acceptedFiles => {
-        props.setFiles((prevFiles) => [...prevFiles, ...acceptedFiles])
-    },[])
-
-    const { getRootProps, getInputProps, isDragActive} = useDropzone({ onDrop })
-
-    return (
-
-        <div {...getRootProps()} className=" z-10 bg-sky-600 duration-300 hover:bg-blue-500  w-96 h-96 flex flex-col justify-center items-center rounded-lg text-center border-2  border-cyan-400 border-dotted">
-            <input {...getInputProps()} />
-            {props.files.length > 0 ?
-                <SetUploadedFilesLogo files={props.files}/>
-                :
-                <>
-                    {isDragActive ? (
-                        <div className="flex flex-col justify-center items-center">
-                            <img src="upload_logo_blue.png" className="w-32 h-32"></img>
-                            <div className=" font-mono text-white font-bold">Drop the file here</div>
-                        </div>
-                    ) :
-                        <div className="flex flex-col justify-center items-center">
-                            <img src="upload_logo_blue.png" className="w-32 h-32"></img>
-                            <div className="text-white font-mono font-bold">Upload your excel, word, text files here</div>
-                        </div>
-                    }
-                </>
-            }
-        </div>
-    )
-}
-
-function SetUploadedFilesLogo(props) {
-    const [angles, setAngles] = useState([])
-    useEffect(() => {
-        // image / png
-        // application / pdf
-        // docx // application/vnd.openxmlformats-officedocument.wordprocessingml.document
-        // excel // application/vnd.ms-excel
-
-        // if (props.files[0].type == "image/png"){
-        //     console.log("image type png")
-        // }
-        if( props.files.length == 1){
-            setAngles([0])
-        }else if ( props.files.length == 2){
-            setAngles([-20, 20])
-        }else if ( props.files.length == 3){
-            setAngles([-30, 0, 30])
-        }else if ( props.files.length == 4){
-            setAngles([-35, -20, 20, 35])
-        }else if ( props.files.length == 5){
-            setAngles([-40, -30, 0, 30, 40])
-        }
-    },[props.files])
-
-    const angledImgs = angles.map((angle, index) => {
-        if(props.files[index].type == "application/pdf"){
-            return (
-                <img
-                    key={index} // Adding a key when mapping
-                    src="pdf_file_logo.webp"
-                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
-                    style={{ transform: `rotate(${angle}deg)` }}
-                />
-            );
-        } else if (props.files[index].type == "application/vnd.ms-excel") {
-
-            return (
-                <img
-                    key={index} // Adding a key when mapping
-                    src="excel-file-logo.png"
-                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
-                    style={{ transform: `rotate(${angle}deg)` }}
-                />
-            );
-        } else if (props.files[index].type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-            return (
-                <img
-                    key={index} // Adding a key when mapping
-                    src="word-file-logo.png"
-                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
-                    style={{ transform: `rotate(${angle}deg)` }}
-                />
-            );
-
-        } else if (props.files[index].type == "text/plain") {
-            return (
-                <img
-                    key={index} // Adding a key when mapping
-                    src="txt-file-logo.png"
-                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
-                    style={{ transform: `rotate(${angle}deg)` }}
-                />
-            );
-
-        }
-    });
-
-    return(
-        <div className=" relative w-full h-full flex justify-center items-center">
-            {angledImgs}
         </div>
     )
 }

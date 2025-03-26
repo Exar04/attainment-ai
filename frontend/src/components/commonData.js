@@ -1,3 +1,6 @@
+import { useCallback, useEffect, useState } from "react"
+import {useDropzone} from "react-dropzone"
+
 export const enginneringSems = ["Sem 1","Sem 2","Sem 3","Sem 4","Sem 5","Sem 6","Sem 7","Sem 8"]
 export const diplomaSems = []
 export const fields = ["Engineering", "Diploma"]
@@ -8,7 +11,7 @@ export const subjectMap = {
         "Sem 1":["Applied Maths I", "Applied Physics", "Applied Chemestry", "Engineering Mechanics", "Basic Electric and Electronics Engineering"],
         "Sem 2":["Applied Maths II", "Elective Physics", "Elective Chemestry", "Engineering Graphics", "Program Core Course"],
         "Sem 3":["Engineering Math III", "Data Structures and Analysis", "Database Management System", "Principle of Communciations", "Paradigms and Computer Programming Fundamentals"],
-        "Sem 4":["Engineering Math III", "Computer Network and Network Design", "Operating System", "Automata Theory", "Computer Organization and Architecture"],
+        "Sem 4":["Engineering Math IV", "Computer Network and Network Design", "Operating System", "Automata Theory", "Computer Organization and Architecture"],
         "Sem 5":[],
         "Sem 6":[],
         "Sem 7":[],
@@ -75,15 +78,166 @@ export const courseOutcomeMap = {
             ]
         },
         "Sem 4":{
-            "Engineering Math III":[], 
-            "Computer Network and Network Design":[], 
-            "Operating System":[], 
-            "Automata Theory":[], 
-            "Computer Organization and Architecture":[]
+            "Engineering Math IV":[
+                "Apply the concepts of eigen values and eigen vectors to solve engineering problems",
+                "Illustrate the use of concepts of Complex Integration for evaluating integrals, computing residues & evaluate various contour integrals",
+                "Apply the concept of Z- transformation and its inverse in engineering problems",
+                "Apply the concept of probability distribution to engineering problems & testing hypothesis of small samples using sampling theory",
+                "Apply the concept of Linear Programming to solve the optimization problems",
+                "Use the Non-Linear Programming techniques to solve the optimization problems",
+            ], 
+            "Computer Network and Network Design":[
+                "Describe the functionalities of each layer of the models and compare the Models",
+                "Categorize the types of transmission media and explain data link layer concepts, design issues and protocols",
+                "Analyze the routing protocols and assign IP address to networks. ",
+                "Explain the data transportation and session management issues and related protocols used for end to end delivery of data",
+                "List the data presentation techniques and illustrate the client/server model in application layer protocols",
+                "Use of networking concepts of IP address, Routing, and application services to design a network for an organization",
+            ], 
+            "Operating System":[
+                "Understand the basic concepts related to Operating System",
+                "Describe the process management policies and illustrate scheduling of processes by CPU",
+                "Explain and apply synchronization primitives and evaluate deadlock conditionsas handled by Operating System",
+                "Describe and analyze the memory allocation and management functions of Operating System",
+                "Analyze and evaluate the services provided by Operating System for storage management",
+                "Compare the functions of various special-purpose Operating Systems",
+            ],
+            "Automata Theory": [
+                "Explain, analyze and design Regular languages, Expression and Grammars",
+                "Design different types of Finite Automata and Machines as Acceptor, Verifier and Translator",
+                "Analyze and design Context Free languages and Grammars",
+                "Design different types of Push down Automata as Simple Parser",
+                "Design different types of Turing Machines as Acceptor, Verifier, Translator and Basic computing machine",
+                "Develop understanding of applications of various Automata",
+            ],
+            "Computer Organization and Architecture": [
+                "Demonstrate the fundamentals of Digital Logic Design",
+                "Describe basic organization of computer, the architecture of 8086 microprocessor and implement assembly language programming for 8086 microprocessors",
+                "Demonstrate control unit operations and conceptualize instruction level parallelism",
+                "List and Identify integers and real numbers and perform computer arithmetic operations on integers",
+                "Categorize memory organization and explain the function of each element of a memory hierarchy",
+                "Examine different methods for computer I/O mechanism",
+            ]
         },
-        "Sem 5":{},
+        "Sem 5": {},
         "Sem 6":{},
         "Sem 7":{},
         "Sem 8":{}
     }
+}
+
+export function MyDropzone(props){
+
+    const onDrop = useCallback(acceptedFiles => {
+        props.setFiles((prevFiles) => [...prevFiles, ...acceptedFiles])
+    },[])
+
+    const { getRootProps, getInputProps, isDragActive} = useDropzone({ onDrop })
+
+    return (
+
+        <div {...getRootProps()} className=" z-10 bg-sky-600 duration-300 hover:bg-blue-500  w-full h-full flex flex-col justify-center items-center rounded-lg text-center border-2  border-cyan-400 border-dotted">
+            <input {...getInputProps()} />
+            {props.files.length > 0 ?
+                <SetUploadedFilesLogo files={props.files}/>
+                :
+                <>
+                    {isDragActive ? (
+                        <div className="flex flex-col justify-center items-center">
+                            <img src="upload_logo_blue.png" className="w-32 h-32"></img>
+                            <div className=" font-mono text-white font-bold">Drop the file here</div>
+                        </div>
+                    ) :
+                        <div className="flex flex-col justify-center items-center">
+                            <img src="upload_logo_blue.png" className="w-32 h-32"></img>
+                            <div className="text-white font-mono font-bold">Upload your excel, word, text files here</div>
+                        </div>
+                    }
+                </>
+            }
+        </div>
+    )
+}
+
+function SetUploadedFilesLogo(props) {
+    const [angles, setAngles] = useState([])
+    useEffect(() => {
+        // image / png
+        // application / pdf
+        // docx // application/vnd.openxmlformats-officedocument.wordprocessingml.document
+        // excel // application/vnd.ms-excel
+
+        // if (props.files[0].type == "image/png"){
+        //     console.log("image type png")
+        // }
+        if( props.files.length == 1){
+            setAngles([0])
+        }else if ( props.files.length == 2){
+            setAngles([-20, 20])
+        }else if ( props.files.length == 3){
+            setAngles([-30, 0, 30])
+        }else if ( props.files.length == 4){
+            setAngles([-35, -20, 20, 35])
+        }else if ( props.files.length == 5){
+            setAngles([-40, -30, 0, 30, 40])
+        }
+    },[props.files])
+
+    const angledImgs = angles.map((angle, index) => {
+        if(props.files[index].type == "application/pdf"){
+            return (
+                <img
+                    key={index} // Adding a key when mapping
+                    src="pdf_file_logo.webp"
+                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
+                    style={{ transform: `rotate(${angle}deg)` }}
+                />
+            );
+        } else if (props.files[index].type == "application/vnd.ms-excel") {
+
+            return (
+                <img
+                    key={index} // Adding a key when mapping
+                    src="excel-file-logo.png"
+                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
+                    style={{ transform: `rotate(${angle}deg)` }}
+                />
+            );
+        } else if (props.files[index].type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+            return (
+                <img
+                    key={index} // Adding a key when mapping
+                    src="word-file-logo.png"
+                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
+                    style={{ transform: `rotate(${angle}deg)` }}
+                />
+            );
+
+        } else if (props.files[index].type == "text/plain") {
+            return (
+                <img
+                    key={index} // Adding a key when mapping
+                    src="txt-file-logo.png"
+                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
+                    style={{ transform: `rotate(${angle}deg)` }}
+                />
+            );
+
+        } else if (props.files[index].type === "text/csv") { // ✅ Added CSV file handling
+            return (
+                <img
+                    key={index}
+                    src="csv_file_logo.png" // Make sure this image exists in your project
+                    className={`${angle >= 0 ? "translate-x-5 translate-y-4" : "-translate-x-5 -translate-y-4"} absolute z-20 w-40 h-40`}
+                    style={{ transform: `rotate(${angle}deg)` }}
+                />
+            );
+        }
+    });
+
+    return(
+        <div className=" relative w-full h-full flex justify-center items-center">
+            {angledImgs}
+        </div>
+    )
 }

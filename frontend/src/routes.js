@@ -5,7 +5,7 @@ import { Bloom } from "./components/Bloom";
 import { Co } from "./components/co";
 import { Aboutus } from "./components/Aboutus";
 import { CourseExitSurveyForm } from "./components/courseExitSurveyForm";
-import { ExitSurvey } from "./components/exitSurvey";
+import { Attainments } from "./components/Attainment";
 
 export const router = createBrowserRouter([
     // {
@@ -30,8 +30,8 @@ export const router = createBrowserRouter([
           element: <Bloom />,
         },
         {
-          path: "/exitSurvey",
-          element: <ExitSurvey />,
+          path: "/Attainment",
+          element: <Attainments />,
         },
         {
           path: "/feedbackForm",

@@ -15,6 +15,7 @@ type Student struct {
 	MesId    string
 	Feedback SubjectFeedback
 }
+
 type SubjectFeedback struct {
 	SubjectName  string
 	FeedbackList []int
@@ -51,6 +52,7 @@ func main() {
 	mamux.HandleFunc("/validateStudent", validateStudent).Methods("POST")
 	mamux.HandleFunc("/feedback", feedback).Methods("POST")
 	mamux.HandleFunc("/getExitSurvey", getExitSurvey).Methods("POST")
+	mamux.HandleFunc("/printExitSurvey", printExitSurvey).Methods("GET")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"}, // Allow all origins (for development, restrict in production)
@@ -88,6 +90,7 @@ func getExitSurvey(w http.ResponseWriter, r *http.Request) {
 }
 func printExitSurvey(w http.ResponseWriter, r *http.Request) {
 	d, e := json.Marshal(exitSurveyData)
+	// fmt.Println("heh")
 	if e != nil {
 		fmt.Println(e)
 		return
@@ -160,12 +163,15 @@ func feedback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	sub.Co1[a.Feedback[0]] += 1
-	sub.Co2[a.Feedback[1]] += 1
-	sub.Co3[a.Feedback[2]] += 1
-	sub.Co4[a.Feedback[3]] += 1
-	sub.Co5[a.Feedback[4]] += 1
-	sub.Co6[a.Feedback[5]] += 1
+	fmt.Println("gg : ", a)
+	fmt.Println("F nums : ", a.Feedback[0], a.Feedback[1], a.Feedback[2], a.Feedback[3], a.Feedback[4], a.Feedback[5])
+
+	sub.Co1[a.Feedback[0]-1] += 1
+	sub.Co2[a.Feedback[1]-1] += 1
+	sub.Co3[a.Feedback[2]-1] += 1
+	sub.Co4[a.Feedback[3]-1] += 1
+	sub.Co5[a.Feedback[4]-1] += 1
+	sub.Co6[a.Feedback[5]-1] += 1
 
 	exitSurveyData[a.SubjectName] = sub
 

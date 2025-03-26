@@ -1,5 +1,6 @@
-function allocate_points(points){
-    const totalPoints = 10
+function allocate_points(points, total_points_to_allocate){
+    // const totalPoints = 10 // this is default points to allocate but user can give its own points
+    const totalPoints = total_points_to_allocate
     const nonZeroValues = points.filter(x => x !== 0)
 
     let result
