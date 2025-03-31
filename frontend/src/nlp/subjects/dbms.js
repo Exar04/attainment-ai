@@ -109,9 +109,9 @@ const RelationalModelAndRelationalAlgebra = [
 const chapter1tags = databaseSystemConceptsAndArch 
 const chapter2tags = EntityRelationshipModel 
 const chapter3tags =  RelationalModelAndRelationalAlgebra
-// const chapter4tags = 
-// const chapter5tags = 
-// const chapter6tags = 
+const chapter4tags = []
+const chapter5tags = []
+const chapter6tags = []
 
 // this is still incomplete so don't use it yet
 function getPointsMappedForDBMS(question) {

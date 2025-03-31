@@ -16,7 +16,7 @@ export function MainPage() {
                 <div role={"button"} onClick={() => {setActiveElem(0); navi("/aboutus")}} className={`${activeElem == 0? " bg-sky-500 hover:text-white":""} p-2 rounded-xl hover:text-cyan-200 hover:scale-110 text-white font-mono font-bold duration-100 mx-4`}>About us</div>
                 <div role={"button"} onClick={() => {setActiveElem(1); navi("/bloom")}} className= {`${activeElem == 1? " bg-sky-500 hover:text-white":""} p-2 rounded-xl hover:text-cyan-200 hover:scale-110 text-white font-mono font-bold duration-100 mx-4`}>Blooms Taxonomy</div>
                 <div role={"button"} onClick={() => {setActiveElem(2); navi("/co")}} className={`${activeElem == 2? " bg-sky-500 hover:text-white":""} p-2 rounded-xl hover:text-cyan-200 hover:scale-110 text-white font-mono font-bold duration-100 mx-4`}>Course Outcome Mapper</div>
-                <div role={"button"} onClick={() => {setActiveElem(3); navi("/feedbackForm")}} className={`${activeElem == 3? " bg-sky-500 hover:text-white":""} p-2 rounded-xl hover:text-cyan-200 hover:scale-110 text-white font-mono font-bold duration-100 mx-4`}>Feedback Form</div>
+                <div role={"button"} onClick={() => {setActiveElem(3); navi("/feedbackForm")}} className={`${activeElem == 3? " bg-sky-500 hover:text-white":""} p-2 rounded-xl hover:text-cyan-200 hover:scale-110 text-white font-mono font-bold duration-100 mx-4`}>Exit Survey Form</div>
                 <div role={"button"} onClick={() => {setActiveElem(4); navi("/attainment")}} className={`${activeElem == 4? " bg-sky-500 hover:text-white":""} p-2 rounded-xl hover:text-cyan-200 hover:scale-110 text-white font-mono font-bold duration-100 mx-4`}>Attainment</div>
             </div>
             {/* {activeElem} */}

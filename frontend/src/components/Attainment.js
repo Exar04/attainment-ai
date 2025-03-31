@@ -12,6 +12,9 @@ import {
     Legend,
     Options
 } from 'chart.js';
+import getPointsMappedForCnnd from "../nlp/subjects/cnnd";
+import getPointsMappedForDBMS from "../nlp/subjects/dbms";
+import allocate_points from "../nlp/match";
 
 ChartJS.register(
     CategoryScale,
@@ -94,8 +97,6 @@ export function Attainments() {
         setCoToOutOf20(computedSums); // Store computed sums in state
     }, [surveyData]);
 
-    // const DirectMeasuresDiv = 
-
     return (
         <div className=" w-screen h-full bg-gradient-to-b from-blue-900 to-cyan-400 flex flex-col ">
 
@@ -119,7 +120,7 @@ export function Attainments() {
             </div>
 
                 <IndirectMeasures surveyData={surveyData} CoToOutOf20={CoToOutOf20}/>
-                {surveyData?<DirectMeasures surveyData={surveyData} CoToOutOf20={CoToOutOf20}/>:<div className=" w-screen h-screen"></div>}
+                {surveyData?<DirectMeasures surveyData={surveyData} CoToOutOf20={CoToOutOf20} subjectSelected={subjectSelected}/>:<div className=" w-screen h-screen"></div>}
 
 
         </div>
@@ -134,8 +135,8 @@ function IndirectMeasures(props) {
             {Object.values(value).map((num, i) => (
                 <div key={i} className="text-center bg-violet-500">{num}</div> 
             ))}
-            <div className=" flex justify-center">{(1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))}</div>
-            <div className=" flex justify-center">{(1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100*0.2/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))}</div>
+            <div className=" flex justify-center">{((1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))).toFixed(2)}</div>
+            <div className=" flex justify-center">{((1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100*0.2/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))).toFixed(2)}</div>
         </div>
     ))
     : null;
@@ -176,21 +177,21 @@ function IndirectMeasures(props) {
                                         hoverBorderColor:"rgba(40, 67, 135, 0.6)",
                                         backgroundColor: "rgba(40, 67, 135, 0.6)",
                                         borderWidth: 2,
-                                        borderRadius: Number.MAX_VALUE,
+                                        // borderRadius: Number.MAX_VALUE,
                                         borderSkipped: false,
                                     },
-                                    {
-                                        label: "Direct",
-                                        data: Object.values(props.CoToOutOf20 || {}), // Extracting corresponding values
-                                        //
-                                        borderColor: "rgba(80, 200, 120, 1)",
-                                        hoverBorderColor:"rgba(40, 120, 135, 1)",
-                                        backgroundColor: "rgba(80, 200, 120, 0.6)",
-                                        hoverBackgroundColor: "rgba(80, 200, 120, 1)",
-                                        borderWidth: 2,
-                                        borderRadius: Number.MAX_VALUE,
-                                        borderSkipped: false,
-                                    },
+                                    // {
+                                    //     label: "Direct",
+                                    //     data: Object.values(props.CoToOutOf20 || {}), // Extracting corresponding values
+                                    //     //
+                                    //     borderColor: "rgba(80, 200, 120, 1)",
+                                    //     hoverBorderColor:"rgba(40, 120, 135, 1)",
+                                    //     backgroundColor: "rgba(80, 200, 120, 0.6)",
+                                    //     hoverBackgroundColor: "rgba(80, 200, 120, 1)",
+                                    //     borderWidth: 2,
+                                    //     borderRadius: Number.MAX_VALUE,
+                                    //     borderSkipped: false,
+                                    // },
                                 ],
                                 options:{
                                     responsive: true,
@@ -237,10 +238,17 @@ function DirectMeasures(props){
     const [OralQuestionFile, setOralQuestionFile] = useState([])
     const [EndSemQuestionFile, setEndSemQuestionFile] = useState([])
 
+    const [UtQuestionFileContent, setUtQuestionFileContent ] = useState("")
+    const [WTQuestionFileContent, setWTQuestionFileContent] = useState("")
+    const [OralQuestionFileContent, setOralQuestionFileContent] = useState("")
+    const [EndSemQuestionFileContent, setEndSemQuestionFileContent] = useState("")
+
     const [UtCo, setUtCo] = useState([0, 0, 0, 0, 0, 0]);
     const [WTCo, setWTCo] = useState([0, 0, 0, 0, 0, 0]);
     const [OralCo, setOralCo] = useState([0, 0, 0, 0, 0, 0]);
     const [EndSemCo, setEndSemCo] = useState([0, 0, 0, 0, 0, 0]);
+
+    const lipo = ["Computer Network and Network Design"]
 
     // student data will be in the form of
     // name;Utmarks;TW;oral;semMarks
@@ -283,22 +291,6 @@ function DirectMeasures(props){
         setJsonData(parseCSV(fileContent))
     }, [fileContent])
 
-    // useEffect(() => {
-    //     console.log(jsonData)
-    // }, [jsonData])
-    useEffect(() => {
-
-    }, [UtQuestionFile])
-    useEffect(() => {
-
-    }, [WTQuestionFile])
-    useEffect(() => {
-
-    }, [OralQuestionFile])
-    useEffect(() => {
-
-    }, [EndSemQuestionFile])
-
     const iaAvgSum = jsonData.reduce((sum, student) => sum + student.IA_Average, 0);
     const TWSum = jsonData.reduce((sum, student) => sum + student.TW, 0);
     const OralSum = jsonData.reduce((sum, student) => sum + student.Oral, 0);
@@ -340,20 +332,20 @@ function DirectMeasures(props){
             <thead>
                 <tr className="bg-gray-200 text-black">
                     <th className="border border-gray-400 p-2">Average marks</th>
-                    <th className="border border-gray-400 p-2">{iaAvgSum/jsonData.length}</th>
-                    <th className="border border-gray-400 p-2">{TWSum/jsonData.length}</th>
-                    <th className="border border-gray-400 p-2">{OralSum/jsonData.length}</th>
-                    <th className="border border-gray-400 p-2">{EndSemSum/jsonData.length}</th>
+                    <th className="border border-gray-400 p-2">{(iaAvgSum/jsonData.length).toFixed(2)}</th>
+                    <th className="border border-gray-400 p-2">{(TWSum/jsonData.length).toFixed(2)}</th>
+                    <th className="border border-gray-400 p-2">{(OralSum/jsonData.length).toFixed(2)}</th>
+                    <th className="border border-gray-400 p-2">{(EndSemSum/jsonData.length).toFixed(2)}</th>
                 </tr>
             </thead>
 
             <thead>
                 <tr className="bg-gray-200 text-black">
                     <th className="border border-gray-400 p-2">Average marks %</th>
-                    <th className="border border-gray-400 p-2">{iaAvgSum/(jsonData.length*20) * 100}</th>
-                    <th className="border border-gray-400 p-2">{TWSum/(jsonData.length*25) * 100}</th>
-                    <th className="border border-gray-400 p-2">{OralSum/(jsonData.length*25) * 100}</th>
-                    <th className="border border-gray-400 p-2">{EndSemSum/(jsonData.length*80) * 100}</th>
+                    <th className="border border-gray-400 p-2">{(iaAvgSum/(jsonData.length*20) * 100).toFixed(2)}</th>
+                    <th className="border border-gray-400 p-2">{(TWSum/(jsonData.length*25) * 100).toFixed(2)}</th>
+                    <th className="border border-gray-400 p-2">{(OralSum/(jsonData.length*25) * 100).toFixed(2)}</th>
+                    <th className="border border-gray-400 p-2">{(EndSemSum/(jsonData.length*80) * 100).toFixed(2)}</th>
 
                     {/* <th className="border border-gray-400 p-2">{iaAvgSum/jsonData.length}</th>
                     <th className="border border-gray-400 p-2">{TWSum/jsonData.length}</th>
@@ -364,39 +356,170 @@ function DirectMeasures(props){
         </table>
     )
 
-    const [DistributionTypeAi, setDistributionTypeAi] =  useState(false)
+    const handleGetCoMappedForAllPapers = () => {
+        if(UtQuestionFile.length <= 0  ){
+            alert("UT Question Paper Not Submited")
+            return
+        }else if(WTQuestionFile.length <= 0  ){
+            alert("WT Question Paper Not Submited")
+            return
+        }else if(OralQuestionFile.length <= 0  ){
+            alert("Oral Question Paper Not Submited")
+            return
+        }else if(EndSemQuestionFile.length <= 0  ){
+            alert("EndSem Question Paper Not Submited")
+            return
+        }else if (!(lipo.some(word => props.subjectSelected.toLowerCase().includes(word.toLowerCase())))) {
+            alert("The NLP for this subject is still not out yet")
+            return
+        }
+
+        const reader1 = new FileReader()
+        reader1.readAsText(UtQuestionFile[0])
+        reader1.onload = function(e) {
+            setUtQuestionFileContent(e.target.result)
+        }
+
+        const reader2 = new FileReader()
+        reader2.readAsText(WTQuestionFile[0])
+        reader2.onload = function(e) {
+            setWTQuestionFileContent(e.target.result)
+        }
+
+        const reader3 = new FileReader()
+        reader3.readAsText(OralQuestionFile[0])
+        reader3.onload = function(e) {
+            setOralQuestionFileContent(e.target.result)
+        }
+
+        const reader4 = new FileReader()
+        reader4.readAsText(EndSemQuestionFile[0])
+        reader4.onload = function (e) {
+            setEndSemQuestionFileContent(e.target.result)
+        }
+    }
+
+    const mapCoUsingNlp = (question, pointsToAllocatePerQuestion) => {
+        var Mpoints
+        if (props.subjectSelected == "Computer Network and Network Design") {
+            Mpoints = getPointsMappedForCnnd(question)
+
+        } else if (props.subjectSelected == "Database Management System") {
+            Mpoints = getPointsMappedForDBMS(question)
+        }
+        // const pts = allocate_points(Mpoints, 5)
+        const pts = allocate_points(Mpoints, pointsToAllocatePerQuestion)
+        const resp = [pts[0], pts[1], pts[2], pts[3], pts[4], pts[5]]
+        return resp
+    }
+
+    useEffect(() => {
+        if (UtQuestionFileContent == "") { return }
+        const lines = UtQuestionFileContent.split('\n'); // Split by new line character
+        var tot = [0,0,0,0,0,0]
+        lines.forEach((line, index) => {
+            const currQuestionPointsArr = mapCoUsingNlp(line, 5)
+            // console.log("gkg : ", index, mapCoUsingNlp( line,5))
+            currQuestionPointsArr.map((p,i) => {
+                tot[i] += p
+            })
+            setUtCo(tot)
+        })
+        // console.log("t : ", tot)
+    }, [UtQuestionFileContent])
+
+    useEffect(() => {
+        if (WTQuestionFileContent == "") { return }
+        const lines = WTQuestionFileContent.split('\n'); // Split by new line character
+        var tot = [0,0,0,0,0,0]
+        lines.forEach((line, index) => {
+            const currQuestionPointsArr = mapCoUsingNlp(line, 5)
+            // console.log("gkg : ", index, mapCoUsingNlp( line,5))
+            currQuestionPointsArr.map((p,i) => {
+                tot[i] += p
+            })
+            setWTCo(tot)
+        })
+    }, [WTQuestionFileContent])
+
+    useEffect(() => {
+        if (OralQuestionFileContent == "") { return }
+        const lines = OralQuestionFileContent.split('\n'); // Split by new line character
+        var tot = [0,0,0,0,0,0]
+        lines.forEach((line, index) => {
+            const currQuestionPointsArr = mapCoUsingNlp(line, 5)
+            // console.log("gkg : ", index, mapCoUsingNlp( line,5))
+            currQuestionPointsArr.map((p,i) => {
+                tot[i] += p
+            })
+            setOralCo(tot)
+        })
+    }, [OralQuestionFileContent])
+
+    useEffect(() => {
+        if (EndSemQuestionFileContent == "") { return }
+        const lines = EndSemQuestionFileContent.split('\n'); // Split by new line character
+        var tot = [0,0,0,0,0,0]
+        lines.forEach((line, index) => {
+            const currQuestionPointsArr = mapCoUsingNlp(line, 5)
+            // console.log("gkg : ", index, mapCoUsingNlp( line,5))
+            currQuestionPointsArr.map((p,i) => {
+                tot[i] += p
+            })
+            setEndSemCo(tot)
+        })
+    }, [EndSemQuestionFileContent])
+
+    const [DistributionTypeAi, setDistributionTypeAi] =  useState(true)
     const addMarksDistributionOfCos = (
         <div className=" flex flex-col justify-center items-center mt-6">
-            <div className="flex justify-center items-center text-white font-bold font-mono text-2xl m-2"><div>Add Co Distribution :</div> <div className=" bg-blue-600 rounded-full p-2 px-4">Manually</div></div>
+            <div  className="flex justify-center items-center text-white font-bold font-mono text-2xl m-2">
+                <div>Add Co Distribution :</div> 
+                <div role={"button"} onClick={() => {setDistributionTypeAi(false)}} className={`${DistributionTypeAi? "bg-blue-400":"bg-blue-600"} rounded-full p-2 px-4 mx-2 hover:px-8 duration-300`}>Manually</div>
+                <div role={"button"} onClick={() => {setDistributionTypeAi(true)}} className={`${DistributionTypeAi? "bg-blue-600":"bg-blue-400"} mx-2 rounded-full p-2 px-4 hover:px-8 duration-300`}>AI</div>
+            </div>
             {DistributionTypeAi?
-                <div>
+                <div className=" flex flex-col justify-center items-center">
                     <div className=" text-center font-bold font-mono text-3xl text-white m-2">Add all the Question papers in txt file format</div>
                     <div className=" flex justify-around items-center p-2 text-center text-white font-bold font-mono text-xl ">
                         <div>
                             UT Questions
-                            <div className=" w-80 h-80">
+                            <div className=" w-80 mx-2 h-80">
                                 <MyDropzone files={UtQuestionFile} setFiles={setUtQuestionFile} />
                             </div>
                         </div>
                         <div>
                             WT Questions
-                            <div className=" w-80 h-80">
+                            <div className=" w-80 mx-2 h-80">
                                 <MyDropzone files={WTQuestionFile} setFiles={setWTQuestionFile} />
                             </div>
                         </div>
                         <div>
                             Oral Questions
-                            <div className=" w-80 h-80">
+                            <div className=" w-80 mx-2 h-80">
                                 <MyDropzone files={OralQuestionFile} setFiles={setOralQuestionFile} />
                             </div>
                         </div>
                         <div>
                             EndSem Questions
-                            <div className=" w-80 h-80">
+                            <div className=" w-80 mx-2 h-80">
                                 <MyDropzone files={EndSemQuestionFile} setFiles={setEndSemQuestionFile} />
                             </div>
                         </div>
                     </div>
+                    <div role={"button"} onClick={() => {handleGetCoMappedForAllPapers()}} className=" bg-green-400 hover:bg-emerald-400 hover:px-10 duration-200 m-4 p-4 px-8 rounded-full font-bold font-mono text-center w-max">
+                        {false? "Loading...":"Get CO Mapped"}
+                    </div>
+                    <CoDistributionTable
+                        UtCo={UtCo}
+                        WTCo={WTCo}
+                        OralCo={OralCo}
+                        EndSemCo={EndSemCo}
+                        setUtCo={setUtCo}
+                        setWTCo={setWTCo}
+                        setOralCo={setOralCo}
+                        setEndSemCo={setEndSemCo}
+                    />
                 </div>
             : 
             <div className=" m-2">
@@ -565,29 +688,27 @@ const PercentageAttainmentAtCoLevel = (props) => {
                 {[1, 2, 3, 4, 5, 6].map((co, index) => (
                     <tr key={co} className="bg-gray-800">
                         <td className="border border-gray-400 p-2">CO{co}</td>
-                        <td className="border border-gray-400 p-2">{(props.UtCo[index]/20)*(props.iaAvgSum/(props.jsonData.length*20) * 100)}</td>
-                        <td className="border border-gray-400 p-2">{(props.WTCo[index]/25)*(props.TWSum/(props.jsonData.length*25) * 100)}</td>
-                        <td className="border border-gray-400 p-2">{(props.OralCo[index]/25)*(props.OralSum/(props.jsonData.length*25) * 100)}</td>
-                        <td className="border border-gray-400 p-2">{(props.EndSemCo[index]/80)*(props.EndSemSum/(props.jsonData.length*80) * 100)}</td>
+                        <td className="border border-gray-400 p-2">{((props.UtCo[index]/20)*(props.iaAvgSum/(props.jsonData.length*20) * 100)).toFixed(3)}</td>
+                        <td className="border border-gray-400 p-2">{((props.WTCo[index]/25)*(props.TWSum/(props.jsonData.length*25) * 100)).toFixed(3)}</td>
+                        <td className="border border-gray-400 p-2">{((props.OralCo[index]/25)*(props.OralSum/(props.jsonData.length*25) * 100)).toFixed(3)}</td>
+                        <td className="border border-gray-400 p-2">{((props.EndSemCo[index]/80)*(props.EndSemSum/(props.jsonData.length*80) * 100)).toFixed(3)}</td>
                     </tr>
                 ))}
             </tbody>
         </table>
-
-
         </div>
     )
 }
 
 const TotalMeasures = (props) => {
     const UtDmap = props.UtCo.map( (value) => (value / 20) * (props.iaAvgSum / (props.jsonData.length * 20)) * 100)
-    const TWDmap = props.UtCo.map( (value) => (value / 20) * (props.TWSum / (props.jsonData.length * 25)) * 100)
-    const OralDmap = props.UtCo.map( (value) => (value / 20) * (props.OralSum / (props.jsonData.length * 25)) * 100)
-    const EndSemDmap = props.UtCo.map( (value) => (value / 20) * (props.EndSemSum / (props.jsonData.length * 80)) * 100)
+    const TWDmap = props.WTCo.map( (value) => (value / 20) * (props.TWSum / (props.jsonData.length * 25)) * 100)
+    const OralDmap = props.OralCo.map( (value) => (value / 20) * (props.OralSum / (props.jsonData.length * 25)) * 100)
+    const EndSemDmap = props.EndSemCo.map( (value) => (value / 20) * (props.EndSemSum / (props.jsonData.length * 80)) * 100)
 
     useEffect(() => {
-        console.log("gg co out of 20 - ")
-        console.log(props.CoToOutOf20)
+        // console.log("gg co out of 20 - ")
+        // console.log(props.CoToOutOf20)
     }, [props.CoToOutOf20])
     return (
         <div>
@@ -616,7 +737,7 @@ const TotalMeasures = (props) => {
                 {[1, 2, 3, 4, 5, 6].map((co, index) => (
                     <div key={co} className="bg-cyan-500 grid grid-cols-8 mx-2 text-white font-mono">
                         <div className="border border-dashed border-cyan-800 p-2 col-span-1">CO{co}</div>
-                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{props.CoToOutOf20[`Co${co}`]}</div>
+                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(props.CoToOutOf20[`Co${co}`]).toFixed(2)}</div>
                         <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(UtDmap[index] * 0.104).toFixed(3)}</div>
                         <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(TWDmap[index] * 0.136).toFixed(3)}</div>
                         <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(OralDmap[index] * 0.136).toFixed(3)}</div>
