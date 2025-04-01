@@ -99,7 +99,6 @@ export function Attainments() {
 
     return (
         <div className=" w-screen h-full bg-gradient-to-b from-blue-900 to-cyan-400 flex flex-col ">
-
             <div className="flex m-1 h-20 justify-center">
                 <div onClick={() => { setOpenfieldlist(!openFieldlist) }} role={"button"} className=" m-3 bg-cyan-500 p-4 sm:px-2 md:px-8 hover:bg-blue-400 duration-150 rounded-full text-white font-mono text-md text-center flex justify-center">
                     {(fieldSelected == "") ? "Select Field" : fieldSelected}
@@ -119,10 +118,8 @@ export function Attainments() {
                 </div>
             </div>
 
-                <IndirectMeasures surveyData={surveyData} CoToOutOf20={CoToOutOf20}/>
-                {surveyData?<DirectMeasures surveyData={surveyData} CoToOutOf20={CoToOutOf20} subjectSelected={subjectSelected}/>:<div className=" w-screen h-screen"></div>}
-
-
+            <IndirectMeasures surveyData={surveyData} CoToOutOf20={CoToOutOf20}/>
+            {surveyData?<DirectMeasures surveyData={surveyData} CoToOutOf20={CoToOutOf20} subjectSelected={subjectSelected}/>:<div className=" w-screen h-screen"></div>}
         </div>
     )
 }
@@ -130,10 +127,10 @@ export function Attainments() {
 function IndirectMeasures(props) {
     const surveyDiv = props.surveyData 
     ? Object.entries(props.surveyData).map(([key, value], index) => (
-        <div key={index} className="m-2 my-0 grid grid-cols-8 bg-emerald-500 font-bold font-mono text-slate-800">
-            <div className="text-center">{key}</div> {/* Co1, Co2, etc. */}
+        <div key={index} className={`m-2 my-0 grid grid-cols-8 ${"bg-blue-"+(8-index)+"00"} border-b border-x border-dashed font-bold font-mono text-white ${index == 5? "rounded-b-xl": ""}`}>
+            <div className="text-center ">{key}</div> {/* Co1, Co2, etc. */}
             {Object.values(value).map((num, i) => (
-                <div key={i} className="text-center bg-violet-500">{num}</div> 
+                <div key={i} className={`text-center ${"bg-blue-"+(8-index)+"00"}`}>{num}</div> 
             ))}
             <div className=" flex justify-center">{((1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))).toFixed(2)}</div>
             <div className=" flex justify-center">{((1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100*0.2/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))).toFixed(2)}</div>
@@ -147,15 +144,15 @@ function IndirectMeasures(props) {
             {
                 props.surveyData ?
                     <div className=" m-2 mb-0 grid grid-cols-8 grid-rows-2 font-bold font-mono text-white ">
-                        <div className=" col-span-1 row-span-2 bg-cyan-500 justify-center flex items-center rounded-ss-3xl">Course Objectvies</div>
-                        <div className=" col-span-5 bg-cyan-500 text-center border-b border-dashed">Course Outcome</div>
-                        <div className="row-span-2 text-center bg-cyan-500 justify-center flex items-center">%</div>
-                        <div className="row-span-2 text-center bg-cyan-500 justify-center flex items-center rounded-se-3xl">Out Of 20</div>
-                        <div className=" text-center bg-cyan-500/40">1</div>
-                        <div className=" text-center bg-cyan-500/40">2</div>
-                        <div className=" text-center bg-cyan-500/40">3</div>
-                        <div className=" text-center bg-cyan-500/40">4</div>
-                        <div className=" text-center bg-cyan-500/40">5</div>
+                        <div className=" col-span-1 row-span-2 bg-blue-500 justify-center flex items-center rounded-ss-3xl border border-dashed">Course Objectvies</div>
+                        <div className=" col-span-5 bg-blue-500 text-center border-y border-dashed">Course Outcome</div>
+                        <div className="row-span-2 text-center bg-blue-500 justify-center flex items-center border-y border-l border-dashed">%</div>
+                        <div className="row-span-2 text-center bg-blue-500 justify-center flex items-center rounded-se-3xl border border-dashed">Out Of 20</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">1</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">2</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">3</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">4</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">5</div>
                     </div>
                     : ""
             }
@@ -167,6 +164,7 @@ function IndirectMeasures(props) {
                     <div className=" bg-slate-200 border-2 border-cyan-800 rounded-2xl p-2 h-full w-full flex flex-col justify-center items-center">
                         {/* <div>Course Exit Survey Statistics</div> */}
                         <Bar
+
                             data={{
                                 labels: Object.keys(props.CoToOutOf20 || {}), // Extracting labels (CO1, CO2, etc.)
                                 datasets: [
