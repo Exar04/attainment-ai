@@ -5,11 +5,19 @@ It also automates the manual process and calculations.
 
 To run project locally - 
 ```bash 
+    cd backend
     go run .
 ```
 
 ```bash 
+    cd frontend 
     npm start 
+```
+
+```bash
+    curl -X POST localhost:8000/addStudent \
+    -H "Content-Type: application/json" \
+    -d '{"Name": "John Doe", "MesId": "12345"}'
 ```
 
 <img src="Images/1.jpeg">
