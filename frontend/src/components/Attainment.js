@@ -128,12 +128,12 @@ function IndirectMeasures(props) {
     const surveyDiv = props.surveyData 
     ? Object.entries(props.surveyData).map(([key, value], index) => (
         <div key={index} className={`m-2 my-0 grid grid-cols-8 ${"bg-blue-"+(8-index)+"00"} border-b border-x border-dashed font-bold font-mono text-white ${index == 5? "rounded-b-xl": ""}`}>
-            <div className="text-center ">{key}</div> {/* Co1, Co2, etc. */}
+            <div className="text-center p-1">{key}</div> {/* Co1, Co2, etc. */}
             {Object.values(value).map((num, i) => (
                 <div key={i} className={`text-center ${"bg-blue-"+(8-index)+"00"}`}>{num}</div> 
             ))}
-            <div className=" flex justify-center">{((1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))).toFixed(2)}</div>
-            <div className=" flex justify-center">{((1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100*0.2/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))).toFixed(2)}</div>
+            <div className=" flex justify-center p-1">{((1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))).toFixed(2)}</div>
+            <div className=" flex justify-center p-1">{((1*value[0] + 2*value[1] + 3*value[2] + 4*value[3] + 5*value[4]) * 100*0.2/(5 *(value[0] +value[1] + value[2] + value[3] + value[4]))).toFixed(2)}</div>
         </div>
     ))
     : null;
@@ -148,11 +148,11 @@ function IndirectMeasures(props) {
                         <div className=" col-span-5 bg-blue-500 text-center border-y border-dashed">Course Outcome</div>
                         <div className="row-span-2 text-center bg-blue-500 justify-center flex items-center border-y border-l border-dashed">%</div>
                         <div className="row-span-2 text-center bg-blue-500 justify-center flex items-center rounded-se-3xl border border-dashed">Out Of 20</div>
-                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">1</div>
-                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">2</div>
-                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">3</div>
-                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">4</div>
-                        <div className=" text-center bg-cyan-500/40 border-b border-dashed">5</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed p-2">1</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed p-2">2</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed p-2">3</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed p-2">4</div>
+                        <div className=" text-center bg-cyan-500/40 border-b border-dashed p-2">5</div>
                     </div>
                     : ""
             }
@@ -459,8 +459,7 @@ function DirectMeasures(props){
         const lines = EndSemQuestionFileContent.split('\n'); // Split by new line character
         var tot = [0,0,0,0,0,0]
         lines.forEach((line, index) => {
-            const currQuestionPointsArr = mapCoUsingNlp(line, 5)
-            // console.log("gkg : ", index, mapCoUsingNlp( line,5))
+            const currQuestionPointsArr = mapCoUsingNlp(line, 10)
             currQuestionPointsArr.map((p,i) => {
                 tot[i] += p
             })
@@ -686,10 +685,10 @@ const PercentageAttainmentAtCoLevel = (props) => {
                 {[1, 2, 3, 4, 5, 6].map((co, index) => (
                     <tr key={co} className="bg-gray-800">
                         <td className="border border-gray-400 p-2">CO{co}</td>
-                        <td className="border border-gray-400 p-2">{((props.UtCo[index]/20)*(props.iaAvgSum/(props.jsonData.length*20) * 100)).toFixed(3)}</td>
-                        <td className="border border-gray-400 p-2">{((props.WTCo[index]/25)*(props.TWSum/(props.jsonData.length*25) * 100)).toFixed(3)}</td>
-                        <td className="border border-gray-400 p-2">{((props.OralCo[index]/25)*(props.OralSum/(props.jsonData.length*25) * 100)).toFixed(3)}</td>
-                        <td className="border border-gray-400 p-2">{((props.EndSemCo[index]/80)*(props.EndSemSum/(props.jsonData.length*80) * 100)).toFixed(3)}</td>
+                        <td className="border border-gray-400 p-2">{((props.UtCo[index]/20)*(props.iaAvgSum/(props.jsonData.length*20) * 100)).toFixed(2)}</td>
+                        <td className="border border-gray-400 p-2">{((props.WTCo[index]/25)*(props.TWSum/(props.jsonData.length*25) * 100)).toFixed(2)}</td>
+                        <td className="border border-gray-400 p-2">{((props.OralCo[index]/25)*(props.OralSum/(props.jsonData.length*25) * 100)).toFixed(2)}</td>
+                        <td className="border border-gray-400 p-2">{((props.EndSemCo[index]/80)*(props.EndSemSum/(props.jsonData.length*80) * 100)).toFixed(2)}</td>
                     </tr>
                 ))}
             </tbody>
@@ -708,6 +707,20 @@ const TotalMeasures = (props) => {
         // console.log("gg co out of 20 - ")
         // console.log(props.CoToOutOf20)
     }, [props.CoToOutOf20])
+
+    // var gkl = "df"
+    const labels = [1, 2, 3, 4, 5, 6].map(co => `CO${co}`);
+
+// Generate the computed values
+const computedValues = [1, 2, 3, 4, 5, 6].map((co, index) => {
+  const directMeasure = (
+    (+((UtDmap[index] * 0.104).toFixed(3))) +
+    (+((TWDmap[index] * 0.136).toFixed(3))) +
+    (+((OralDmap[index] * 0.136).toFixed(3))) +
+    (+((EndSemDmap[index] * 0.424).toFixed(3)))
+  );
+  return (directMeasure + +props.CoToOutOf20[`Co${co}`]).toFixed(2);
+})
     return (
         <div>
             <div className=" m-2 mt-8 mb-0 grid grid-cols-8 grid-rows-3 font-bold font-mono text-white ">
@@ -736,19 +749,84 @@ const TotalMeasures = (props) => {
                     <div key={co} className="bg-cyan-500 grid grid-cols-8 mx-2 text-white font-mono">
                         <div className="border border-dashed border-cyan-800 p-2 col-span-1">CO{co}</div>
                         <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(props.CoToOutOf20[`Co${co}`]).toFixed(2)}</div>
-                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(UtDmap[index] * 0.104).toFixed(3)}</div>
-                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(TWDmap[index] * 0.136).toFixed(3)}</div>
-                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(OralDmap[index] * 0.136).toFixed(3)}</div>
-                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(EndSemDmap[index] * 0.424).toFixed(3)}</div>
+                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(UtDmap[index] * 0.104).toFixed(2)}</div>
+                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(TWDmap[index] * 0.136).toFixed(2)}</div>
+                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(OralDmap[index] * 0.136).toFixed(2)}</div>
+                        <div className="border border-dashed border-cyan-800 p-2 col-span-1">{(EndSemDmap[index] * 0.424).toFixed(2)}</div>
                         <div className="border border-dashed border-cyan-800 p-2 col-span-1">
-                            {((UtDmap[index] * 0.104).toFixed(3)*1+ (TWDmap[index] * 0.136).toFixed(3)*1+(OralDmap[index] * 0.136).toFixed(3)*1+(EndSemDmap[index] * 0.424).toFixed(3)*1).toFixed(3)}
+                            {((UtDmap[index] * 0.104).toFixed(3)*1+ (TWDmap[index] * 0.136).toFixed(3)*1+(OralDmap[index] * 0.136).toFixed(3)*1+(EndSemDmap[index] * 0.424).toFixed(3)*1).toFixed(2)}
                         </div>
                         <div className="border border-dashed border-cyan-800 p-2 col-span-1">
-                            {(((UtDmap[index] * 0.104).toFixed(3)*1+ (TWDmap[index] * 0.136).toFixed(3)*1+(OralDmap[index] * 0.136).toFixed(3)*1+(EndSemDmap[index] * 0.424).toFixed(3)*1).toFixed(3)*1 +props.CoToOutOf20[`Co${co}`]*1).toFixed(3)}
+                            {(((UtDmap[index] * 0.104).toFixed(3)*1+ (TWDmap[index] * 0.136).toFixed(3)*1+(OralDmap[index] * 0.136).toFixed(2)*1+(EndSemDmap[index] * 0.424).toFixed(3)*1).toFixed(3)*1 +props.CoToOutOf20[`Co${co}`]*1).toFixed(2)}
                         </div>
                     </div>
                 ))}
             </div>
+
+            {true ?
+                <div className=" w-full h-80 p-2">
+                    <div className=" bg-slate-200 border-2 border-cyan-800 rounded-2xl p-2 h-full w-full flex flex-col justify-center items-center">
+                        {/* <div>Course Exit Survey Statistics</div> */}
+                        <Bar
+
+                            data={{
+                                labels: Object.keys(props.CoToOutOf20 || {}), // Extracting labels (CO1, CO2, etc.)
+                                datasets: [
+                                    {
+                                        label: "Direct",
+                                        // data: Object.values(props.CoToOutOf20 || {}),
+                                        data: Object.values(computedValues || {}),
+                                        borderColor: "rgba(200, 220, 235, 1)",
+                                        hoverBorderColor:"rgba(40, 67, 135, 0.6)",
+                                        backgroundColor: "rgba(40, 67, 135, 0.6)",
+                                        borderWidth: 2,
+                                        // borderRadius: Number.MAX_VALUE,
+                                        borderSkipped: false,
+                                    },
+                                    // {
+                                    //     label: "Direct",
+                                    //     data: Object.values(props.CoToOutOf20 || {}), // Extracting corresponding values
+                                    //     //
+                                    //     borderColor: "rgba(80, 200, 120, 1)",
+                                    //     hoverBorderColor:"rgba(40, 120, 135, 1)",
+                                    //     backgroundColor: "rgba(80, 200, 120, 0.6)",
+                                    //     hoverBackgroundColor: "rgba(80, 200, 120, 1)",
+                                    //     borderWidth: 2,
+                                    //     borderRadius: Number.MAX_VALUE,
+                                    //     borderSkipped: false,
+                                    // },
+                                ],
+                                options:{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true, // Ensures chart starts from 0
+                                            max: 100, // ✅ Force y-axis limit to 20
+                                            ticks: {
+                                                stepSize: 5, // Optional: Control tick intervals
+                                            },
+                                        },
+                                    },
+                                }}
+                            }
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true, // Ensures chart starts from 0
+                                        max: 100, // ✅ Force y-axis limit to 20
+                                        ticks: {
+                                            stepSize: 5, // Optional: Control tick intervals
+                                        },
+                                    },
+                                },
+                            }}
+                        />
+                    </div>
+                </div>
+                : ""}
         </div>
     )
 }
