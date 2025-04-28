@@ -3,6 +3,15 @@
 This project is to ease the workload of teachers but providing NLP models to find blooms taxonomy and Course Outcome mappings
 It also automates the manual process and calculations.
 
+To run project locally - 
+```bash 
+    go run .
+```
+
+```bash 
+    npm start 
+```
+
 <img src="Images/1.jpeg">
 <img src="Images/2.jpeg">
 <img src="Images/3.jpeg">
