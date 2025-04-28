@@ -10,7 +10,7 @@ It also automates the manual process and calculations.
 <img src="Images/5.jpeg">
 <img src="Images/6.jpeg">
 <img src="Images/7.jpeg">
-<img src="Images/8.jpeg">
-<img src="Images/9.jpeg">
-<img src="Images/10.jpeg">
-<img src="Images/11.jpeg">
+<img src="Images/8.png">
+<img src="Images/9.png">
+<img src="Images/10.png">
+<img src="Images/11.png">
